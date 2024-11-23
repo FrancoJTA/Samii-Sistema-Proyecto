@@ -1,0 +1,144 @@
+.solicitudes-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+.solicitudes-list {
+    flex: 1;
+    padding: 20px;
+    background: #f9f9f9;
+    border-right: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.solicitudes-list.collapsed {
+    flex: 0.3; /* Se colapsa cuando hay un detalle seleccionado */
+}
+
+.solicitudes-list h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.solicitudes-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.solicitud-item {
+    padding: 10px;
+    margin: 5px 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.solicitud-item:hover {
+    background: #f1f1f1;
+}
+
+.solicitud-detail {
+    flex: 1;
+    padding: 20px;
+    background: #fff;
+    overflow-y: auto;
+}
+
+.solicitud-detail h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.solicitud-detail p {
+    margin: 5px 0;
+}
+
+.solicitud-detail h3 {
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.solicitud-detail button {
+    padding: 10px 20px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.3s ease;
+}
+
+.solicitud-detail button:hover {
+    background: #0056b3;
+}
+
+.report-detail {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.report-detail h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.report-detail p {
+    margin: 5px 0;
+}
+
+.report-form {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.report-form h3 {
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.report-form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.report-form select,
+.report-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.report-form button {
+    padding: 10px 20px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.report-form button:hover {
+    background: #0056b3;
+}
+
+

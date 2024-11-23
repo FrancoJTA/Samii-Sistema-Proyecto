@@ -1,0 +1,60 @@
+/* Navbar general */
+.navbar { /* Fondo claro */
+    border-bottom: 1px solid #e0e0e0; /* Línea separadora */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between; /* Espacio entre los extremos */
+    align-items: center;
+    width: 100%;
+    padding: 0 40px; /* Aumenta el padding horizontal */
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo-image {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.logo-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Botón de cerrar sesión (lado derecho) */
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.logout-button {
+    background-color: #d9534f; /* Rojo */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #c9302c; /* Rojo más oscuro */
+}

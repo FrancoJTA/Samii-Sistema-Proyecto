@@ -1,0 +1,57 @@
+.reportes-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.reportes-list {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    overflow-y: auto;
+    transition: flex 0.3s ease;
+}
+
+.reportes-list.collapsed {
+    flex: 0.3;
+}
+
+.reporte-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.reporte-item:hover {
+    background-color: #f9f9f9;
+}
+
+.reporte-detail {
+    flex: 1.7;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.respuesta-detail {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
