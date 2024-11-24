@@ -58,6 +58,7 @@ public class MiembroController {
         String correo = (String) requestData.get("correo");
         String otp = (String) requestData.get("otp");
         String nombre = (String) requestData.get("nombre");
+        String apellido = (String) requestData.get("apellido");
         List<Map<String, Object>> propietarioMedidorList = (List<Map<String, Object>>) requestData.get("propietario_medidor");
 
         // Validar el OTP
@@ -119,6 +120,7 @@ public class MiembroController {
                 Usuario nuevoUsuario = new Usuario();
                 nuevoUsuario.setCorreo(correo);
                 nuevoUsuario.setNombre(nombre);
+                nuevoUsuario.setApellido(apellido);
                 nuevoUsuario.setPropietario_medidor(nuevosPropMedidores);
 
                 // Generar contraseña temporal

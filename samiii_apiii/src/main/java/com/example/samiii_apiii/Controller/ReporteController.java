@@ -122,9 +122,9 @@ public class ReporteController {
 
     //Obtener todos los reportes de una zona
     @GetMapping("/find-zona/{zona_id}")
-    public ResponseEntity<List<Reporte>> getReporteByZona (@PathVariable String zonaId) {
+    public ResponseEntity<List<Reporte>> getReporteByZona (@PathVariable String zona_id) {
         try {
-            List<Reporte> reportes = reporteService.findByZonaid(zonaId);
+            List<Reporte> reportes = reporteService.findByZonaid(zona_id);
             if (reportes.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Collections.emptyList());

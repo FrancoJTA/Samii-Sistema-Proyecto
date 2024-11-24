@@ -227,9 +227,9 @@ public class UserController {
 
     //Obtener Usuarios Por sus zona
     @GetMapping("/find-zona/{zona_id}")
-    public ResponseEntity<List<Usuario>> getUsuariosByZona (@PathVariable String zonaId) {
+    public ResponseEntity<List<Usuario>> getUsuariosByZona (@PathVariable String zona_id) {
         try {
-            List<Usuario> usuarios = usuarioService.finddByZonaid(zonaId);
+            List<Usuario> usuarios = usuarioService.finddByZonaid(zona_id);
             if (usuarios.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Collections.emptyList());
