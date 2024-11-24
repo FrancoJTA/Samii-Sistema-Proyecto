@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -19,14 +20,15 @@ public class Factura {
     private String medidor_id;
 
     // Datos de consumo
-    private float lecturaAnterior; // Lectura al inicio del periodo
-    private float lecturaActual;   // Lectura al final del periodo
-    private float consumo;         // Consumo del mes (lecturaActual - lecturaAnterior)
-    private float costoTotal;      // Monto total de la factura
+    private float lecturaAnterior;
+    private float lecturaActual;
+    private float consumo;
+    private float costoTotal;
 
     // Datos adicionales
-    private Date fechaEmision;     // Fecha de emisión de la factura
-    private Date fechaVencimiento; // Fecha límite de pago
-    private boolean pagada;        // Estado de pago de la factura
+    private LocalDateTime fechaEmision;
+    private LocalDateTime fechaVencimiento;
+    private boolean pagada;
     private float descuentoSamiicoin; // Descuento aplicado usando Samiicoins
+
 }

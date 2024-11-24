@@ -15,7 +15,7 @@ public class Usuario {
     @Id
     private String usuario_id;
 
-        //Datos generales
+    //Datos generales
     private String nombre;
 
     @Indexed(unique = true)

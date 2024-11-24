@@ -41,9 +41,6 @@ public class CorteController {
         }
     }
 
-    /**
-     * Obtiene todos los cortes activos en este momento.
-     */
     @GetMapping("/activos")
     public ResponseEntity<List<Corte>> obtenerCortesActivos() {
         List<Corte> cortesActivos = corteService.obtenerCortesActivos();
