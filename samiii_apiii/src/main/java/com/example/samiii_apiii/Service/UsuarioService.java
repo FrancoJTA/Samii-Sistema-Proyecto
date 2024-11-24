@@ -112,7 +112,6 @@ public class UsuarioService {
 
 
     //Remueve tu medidor
-    //Agregar Logica para eliminar el usuario
     public boolean removePropMedidor(String usuarioId, String medidorId) {
         Optional<Usuario> usuarioOpt = userRepository.findById(usuarioId);
 
@@ -122,16 +121,28 @@ public class UsuarioService {
                     .stream()
                     .filter(medidor -> !medidor.getMedidor_id().equals(medidorId))
                     .toList();
+
+            // Si no hay cambios en la lista, el medidor no existía
             if (updatedPropietarioMedidor.size() == usuario.getPropietario_medidor().size()) {
                 return false;
             }
+
+            // Actualiza la lista del usuario
             usuario.setPropietario_medidor(updatedPropietarioMedidor);
-            userRepository.save(usuario);
+
+            // Verifica si la lista queda vacía y elimina al usuario
+            if (updatedPropietarioMedidor.isEmpty()) {
+                userRepository.deleteById(usuarioId); // Elimina al usuario si no tiene medidores
+            } else {
+                userRepository.save(usuario); // Guarda los cambios si aún hay medidores
+            }
+
             return true;
         }
 
         return false;
     }
+
 
     //Cambiar Permisos
     public boolean updatePropMedidor(String usuarioId, String medidorId, Boolean corteLuz, Boolean verLectura, Boolean pagarFacturas) {

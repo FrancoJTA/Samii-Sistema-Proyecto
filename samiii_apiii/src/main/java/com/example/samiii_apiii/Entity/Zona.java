@@ -2,6 +2,7 @@ package com.example.samiii_apiii.Entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Zona {
     @Id
     private String zona_id;
+    private String Name;
     private String latitud;
     private String longitud;
 }

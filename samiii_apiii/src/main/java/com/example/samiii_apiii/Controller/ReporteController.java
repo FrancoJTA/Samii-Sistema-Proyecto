@@ -1,11 +1,7 @@
 package com.example.samiii_apiii.Controller;
 
-import com.example.samiii_apiii.Entity.Reporte;
-import com.example.samiii_apiii.Entity.Solicitud;
-import com.example.samiii_apiii.Entity.Usuario;
-import com.example.samiii_apiii.Service.ReporteService;
-import com.example.samiii_apiii.Service.SolicitudService;
-import com.example.samiii_apiii.Service.UsuarioService;
+import com.example.samiii_apiii.Entity.*;
+import com.example.samiii_apiii.Service.*;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +28,12 @@ public class ReporteController {
     @Autowired
     private SolicitudService solicitudService;
 
+    @Autowired
+    private MedidorService medidorService;
+
+    @Autowired
+    private ZonaService zonaService;
+
     @GetMapping
     public List<Reporte> getAllReporte(){
         return reporteService.findAll();
@@ -46,25 +48,58 @@ public class ReporteController {
 
     @PostMapping
     public Reporte createReporte(@RequestBody Reporte reporte) {
-        // Generar un ID manualmente para el reporte
-        String reporteId = new ObjectId().toString(); // Utiliza ObjectId si estás usando MongoDB
+        // Generar un ID para el reporte
+        String reporteId = new ObjectId().toString();
         reporte.setReporte_id(reporteId);
 
-        // Configurar otros valores iniciales
+        // Configurar valores iniciales
         reporte.setFechareporte(LocalDateTime.now());
         reporte.setEstado("En Espera");
 
-        // Actualizar la solicitud asociada con el ID del reporte
-        boolean resp = true;
-        if(reporte.getSolicitud_id()!=null) resp = solicitudService.changestatesolicitud(reporte.getSolicitud_id(), "En Proceso", reporteId);
+        Double latitud = null;
+        Double longitud = null;
 
-        if (resp) {
-            // Guardar el reporte en la base de datos
-            return reporteService.save(reporte);
-        } else {
-            return null;
+        // 1. Si `solicitud_id` no es null, obtener las coordenadas de la solicitud
+        if (reporte.getSolicitud_id() != null) {
+            Solicitud solicitud = solicitudService.findById(reporte.getSolicitud_id())
+                    .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+
+            latitud = Double.parseDouble(solicitud.getLatitud());
+            longitud = Double.parseDouble(solicitud.getLongitud());
+
+            // Cambiar el estado de la solicitud a "En Proceso"
+            boolean solicitudActualizada = solicitudService.changestatesolicitud(
+                    reporte.getSolicitud_id(),
+                    "En Proceso",
+                    reporteId
+            );
+
+            if (!solicitudActualizada) {
+                throw new RuntimeException("No se pudo actualizar el estado de la solicitud");
+            }
         }
+        // 2. Si `solicitud_id` es null pero `medidor_id` no lo es, obtener las coordenadas del medidor
+        else if (reporte.getMedidor_id() != null) {
+            Medidor medidor = medidorService.findById(reporte.getMedidor_id())
+                    .orElseThrow(() -> new RuntimeException("Medidor no encontrado"));
+
+            latitud = Double.parseDouble(medidor.getLatitud());
+            longitud = Double.parseDouble(medidor.getLongitud());
+        }
+
+        // 3. Si se obtuvieron coordenadas, buscar la zona más cercana
+        if (latitud != null && longitud != null) {
+            Zona closestZona = zonaService.findClosestZona(latitud, longitud);
+            if (closestZona != null) {
+                // Asignar el `zona_id` más cercano al reporte
+                reporte.setZonaid(closestZona.getZona_id());
+            }
+        }
+
+        // Guardar y retornar el reporte
+        return reporteService.save(reporte);
     }
+
 
 
     @PutMapping("/{id}")

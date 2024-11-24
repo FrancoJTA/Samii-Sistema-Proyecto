@@ -11,6 +11,7 @@ const Panel = () => {
         { label: "MAPA", link: "/mapa" },
         { label: "SOLICITUDES", link: "/solicitudes" },
         { label: "REPORTES", link: "/reportes" },
+        { label: "ZONAS", link: "/zona" },
     ];
 
     return (

@@ -50,3 +50,20 @@ export const putData = async (endpoint, data) => {
         throw error;
     }
 };
+export const deleteData = async (endpoint) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error deleting data:", error);
+        throw error;
+    }
+};

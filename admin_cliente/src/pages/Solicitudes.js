@@ -103,8 +103,6 @@ const Solicitudes = () => {
                         : s
                 )
             );
-            //probando cosasasfdddfjakslfdjsalkjf;aslkjdf
-            //fadsfjaskjflk;ajsdfl;kajsld;k
 
             setReportFormData({ tipo: "", descripcion: "" });
             setShowReportForm(false);

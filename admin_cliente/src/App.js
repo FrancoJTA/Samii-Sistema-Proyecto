@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Panel from "./pages/Panel";
+import Zonas from "./pages/Zonas";
 import Solicitudes from "./pages/Solicitudes";
 import CrearCliente from "./pages/CrearCliente";
 import Reportes from "./pages/Reporte";
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/monitores" element={<Monitor />} />
                 <Route path="/solicitudes" element={<Solicitudes />} />
                 <Route path="/reportes" element={<Reportes />} />
+                <Route path="/zona" element={<Zonas />} />
                 <Route path="/crear-cliente/:solicitudId/:respuestaId" element={<CrearCliente />} />
 
                 {/* Si decides habilitar PrivateRoute en el futuro */}

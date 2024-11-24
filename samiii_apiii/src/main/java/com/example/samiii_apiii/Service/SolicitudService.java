@@ -14,8 +14,6 @@ import java.util.Optional;
 @Service
 public class SolicitudService {
 
-    //Agregar Enviar Correo de Confirmacion de Envio de Solicitud
-
     @Autowired
     private SolicitudRepository solicitudRepository;
 
