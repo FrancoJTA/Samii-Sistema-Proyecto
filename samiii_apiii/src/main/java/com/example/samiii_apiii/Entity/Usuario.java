@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -17,9 +18,12 @@ public class Usuario {
         //Datos generales
     private String nombre;
 
+    @Indexed(unique = true)
     private String correo;
 
     private String apellido;
+
+    @Indexed(unique = true)
     private String ci;
     private String password;
     private String telefono;

@@ -2,6 +2,7 @@ package com.example.samiii_apiii.Controller;
 
 import com.example.samiii_apiii.Entity.Usuario;
 import com.example.samiii_apiii.Entity.Zona;
+import com.example.samiii_apiii.Entity.prop_medidor;
 import com.example.samiii_apiii.Service.EmailService;
 import com.example.samiii_apiii.Service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,28 +38,77 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> createUsuario(@RequestBody Usuario usuario) {
         try {
-            // Generar una contraseña aleatoria
-            String generatedPassword = generateRandomPassword();
+            // Buscar si el usuario ya existe en la base de datos
+            Optional<Usuario> existingUserOpt = usuarioService.findByCorreo(usuario.getCorreo());
 
-            // Asignar la contraseña al usuario
-            usuario.setPassword(generatedPassword);
+            if (existingUserOpt.isPresent()) {
+                // Si el usuario ya existe, actualizar la información
+                Usuario existingUser = existingUserOpt.get();
 
-            // Guardar el usuario en la base de datos
-            Usuario savedUsuario = usuarioService.save(usuario);
+                // Extender la lista de prop_medidor
+                List<prop_medidor> existingMedidores = existingUser.getPropietario_medidor();
+                List<prop_medidor> newMedidores = usuario.getPropietario_medidor();
 
-            // Enviar un correo con la contraseña generada
-            emailService.sendWelcomeEmail(
-                    usuario.getCorreo(),
-                    "Bienvenido a Samiii",
-                    generatedPassword
-            );
+                newMedidores.forEach(newMedidor -> {
+                    boolean exists = existingMedidores.stream()
+                            .anyMatch(existingMedidor -> existingMedidor.getMedidor_id().equals(newMedidor.getMedidor_id()));
+                    if (!exists) {
+                        existingMedidores.add(newMedidor);
+                    }
+                });
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUsuario);
+                existingUser.setPropietario_medidor(existingMedidores);
+
+                // Actualizar otros datos (excepto el correo)
+                if (usuario.getNombre() != null) {
+                    existingUser.setNombre(usuario.getNombre());
+                }
+                if (usuario.getApellido() != null) {
+                    existingUser.setApellido(usuario.getApellido());
+                }
+                if (usuario.getTelefono() != null) {
+                    existingUser.setTelefono(usuario.getTelefono());
+                }
+                if (usuario.getRoles() != null) {
+                    existingUser.setRoles(usuario.getRoles());
+                }
+
+                // Guardar el usuario actualizado en la base de datos
+                Usuario updatedUser = usuarioService.save(existingUser);
+
+                // Enviar correo avisando sobre la adición del medidor
+                emailService.sendMedidorAddedEmail(
+                        existingUser.getCorreo(),
+                        "Se agregó un nuevo medidor",
+                        "Se ha añadido un nuevo medidor a tu cuenta."
+                );
+
+                return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+
+            } else {
+                // Si el usuario no existe, crear uno nuevo
+                // Generar una contraseña aleatoria
+                String generatedPassword = generateRandomPassword();
+                usuario.setPassword(generatedPassword);
+
+                // Guardar el usuario en la base de datos
+                Usuario newUser = usuarioService.save(usuario);
+
+                // Enviar correo de bienvenida con la contraseña generada
+                emailService.sendWelcomeEmail(
+                        usuario.getCorreo(),
+                        "Bienvenido a Samiii",
+                        generatedPassword
+                );
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creando el usuario: " + e.getMessage());
         }
     }
+
 
     private String generateRandomPassword() {
         int min = 100000; // Número mínimo de 6 dígitos
@@ -74,7 +124,6 @@ public class UserController {
             if (correo == null || correo.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
             return usuarioService.findByCorreo(correo)
                     .map(usuario -> new ResponseEntity<>(usuario, HttpStatus.OK))
                     .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -158,7 +207,22 @@ public class UserController {
         }
     }
 
-    //agregar para el de miembros
+    @GetMapping("/owner/{medidorId}")
+    public ResponseEntity<Usuario> getOwnerByMedidorId(@PathVariable String medidorId) {
+        try {
+            Optional<Usuario> usuarioOpt = usuarioService.findOwnerByMedidorId(medidorId);
+
+            if (usuarioOpt.isPresent()) {
+                return ResponseEntity.ok(usuarioOpt.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
 
 
     //Obtener Usuarios Por sus zona

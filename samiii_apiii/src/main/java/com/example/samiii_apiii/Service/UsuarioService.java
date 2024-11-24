@@ -51,7 +51,20 @@ public class UsuarioService {
     }
 
 
+    public Optional<Usuario> findOwnerByMedidorId(String medidorId) {
+        // Buscar todos los usuarios que tienen el medidor_id
+        List<Usuario> usuarios = userRepository.findByMedidorId(medidorId);
 
+        // Filtrar el usuario que tiene el rol OWNER para el medidor_id
+        for (Usuario usuario : usuarios) {
+            boolean isOwner = usuario.getPropietario_medidor().stream()
+                    .anyMatch(pm -> pm.getMedidor_id().equals(medidorId) && pm.getRol().equals("OWNER"));
+            if (isOwner) {
+                return Optional.of(usuario);
+            }
+        }
+        return Optional.empty();
+    }
 
     //Actualizar sin necesidad de todoos los campos requeridos
     public Usuario update(String id, Usuario usuarioDetails) {

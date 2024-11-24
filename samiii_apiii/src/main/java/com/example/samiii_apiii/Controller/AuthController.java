@@ -8,13 +8,12 @@ import com.example.samiii_apiii.Service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -31,31 +30,33 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+
         Optional<Usuario> usuarioOpt = usuarioService.findByCorreo(loginRequest.getCorreo());
 
-        if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-            if (passwordEncoder.matches(loginRequest.getPassword(), usuario.getPassword())) {
-                String otp = generateOTP();
-                otpStore.put(usuario.getCorreo(), otp);
-
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        otpStore.remove(usuario.getCorreo());
-                        System.out.println("OTP eliminado para " + usuario.getCorreo());
-                    }
-                }, 300000);
-
-                emailService.sendEmail(usuario.getCorreo(), "Your OTP Code", otp);
-
-                return ResponseEntity.ok("OTP sent to your email");
-            } else {
-                return ResponseEntity.status(401).body("Invalid password");
-            }
-        } else {
-            return ResponseEntity.status(404).body("User not found");
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("El usuario no existe.");
         }
+
+        Usuario usuario = usuarioOpt.get();
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), usuario.getPassword())) {
+            return ResponseEntity.status(401).body("Contraseña incorrecta.");
+        }
+
+        String otp = generateOTP();
+        otpStore.put(usuario.getCorreo(), otp);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                otpStore.remove(usuario.getCorreo());
+                System.out.println("OTP eliminado para " + usuario.getCorreo());
+            }
+        }, 300000);
+
+        emailService.sendOTPEmail(usuario.getCorreo(),"Tu Codigo OTP",otp);
+
+        return ResponseEntity.ok("OTP enviado a tu correo.");
     }
 
     @PostMapping("/verify-otp")
@@ -64,11 +65,12 @@ public class AuthController {
 
         if (storedOtp != null && storedOtp.equals(otpRequest.getOtp())) {
             otpStore.remove(otpRequest.getCorreo());
-            return ResponseEntity.ok("Login successful");
+            return ResponseEntity.ok("Autenticación exitosa.");
         } else {
-            return ResponseEntity.status(401).body("Invalid or expired OTP");
+            return ResponseEntity.status(401).body("OTP inválido o expirado.");
         }
     }
+
 
     private String generateOTP() {
         Random random = new Random();
