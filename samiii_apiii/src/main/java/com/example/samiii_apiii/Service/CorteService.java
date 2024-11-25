@@ -4,6 +4,7 @@ import com.example.samiii_apiii.Entity.Corte;
 import com.example.samiii_apiii.Entity.Corte;
 import com.example.samiii_apiii.Entity.Medidor;
 import com.example.samiii_apiii.Repository.CorteRepository;
+import com.example.samiii_apiii.Repository.FacturaRepository;
 import com.example.samiii_apiii.Repository.MedidorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +22,9 @@ public class CorteService {
 
     @Autowired
     private MedidorService medidorService;
+
+    @Autowired
+    private FacturaRepository facturaRepository;
 
     /**
      * Crea un nuevo corte y actualiza el estado del medidor a inactivo (activo = false).
@@ -56,9 +60,15 @@ public class CorteService {
             if (medidorOptional.isPresent()) {
                 Medidor medidor = medidorOptional.get();
 
-                // Si el medidor aún está inactivo, reactivarlo
-                if (!medidor.isActivo()) {
-                    medidorService.updateMedidorEstado(medidor.getMedidor_id(), true);
+                // Verificar si hay facturas vencidas y no pagadas antes de reactivar
+                boolean tieneFacturasVencidas = facturaRepository.existsByMedidorIdAndPagadaFalseAndFechaVencimientoBefore(
+                        medidor.getMedidor_id(), ahora);
+
+                if (!tieneFacturasVencidas) {
+                    // Si no tiene facturas vencidas, reactivar el medidor
+                    if (!medidor.isActivo()) {
+                        medidorService.updateMedidorEstado(medidor.getMedidor_id(), true);
+                    }
                 }
             }
         }

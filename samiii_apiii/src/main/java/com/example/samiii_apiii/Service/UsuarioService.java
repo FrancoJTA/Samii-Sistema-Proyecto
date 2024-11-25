@@ -81,7 +81,7 @@ public class UsuarioService {
             existingUsuario.setCorreo(usuarioDetails.getCorreo());
         }
         if (usuarioDetails.getPassword() != null) {
-            existingUsuario.setPassword(passwordEncoder.encode(usuarioDetails.getPassword()));
+            existingUsuario.setPassword(usuarioDetails.getPassword());
         }
         if (usuarioDetails.getTelefono() != null) {
             existingUsuario.setTelefono(usuarioDetails.getTelefono());
@@ -169,5 +169,6 @@ public class UsuarioService {
 
         return false; // Usuario o medidor no encontrado
     }
+
 
 }

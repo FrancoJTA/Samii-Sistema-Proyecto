@@ -14,21 +14,31 @@ public class Factura {
     private String factura_id;
 
     // Usuario asociado
-    private String usuario_id;
+    private String usuarioId;
 
     // Medidor asociado
-    private String medidor_id;
+    private String medidorId;
 
     // Datos de consumo
     private float lecturaAnterior;
+
     private float lecturaActual;
+
     private float consumo;
+    private float generado;
+
+
+    private float gen_samii_coin;
+
     private float costoTotal;
+
+
 
     // Datos adicionales
     private LocalDateTime fechaEmision;
     private LocalDateTime fechaVencimiento;
+    private LocalDateTime fechaPagado;
     private boolean pagada;
     private float descuentoSamiicoin; // Descuento aplicado usando Samiicoins
-
+    private boolean usoSamiiCoins;
 }

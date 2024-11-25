@@ -13,4 +13,5 @@ public interface CorteRepository extends MongoRepository<Corte, String> {
     List<Corte> findByFechaFinBefore(LocalDateTime ahora);
 
     List<Corte> findByMedidorId(String medidorId);
+
 }

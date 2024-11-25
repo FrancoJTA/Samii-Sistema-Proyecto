@@ -32,7 +32,7 @@ public class Usuario {
     private List<String> roles;
 
     //Cliente Datos
-    private int samii_coin;
+    private float samii_coin;
     private List<prop_medidor> propietario_medidor;
 
 
