@@ -17,4 +17,7 @@ public interface UsuarioRepository extends MongoRepository<Usuario, String> {
 
     @Query("{'propietario_medidor.medidor_id': ?0}")
     List<Usuario> findByMedidorId(String medidorId);
+
+    @Query("{'propietario_medidor.medidor_id': {$in: ?0}}")
+    List<Usuario> findByMedidorIdIn(List<String> medidorIds);
 }

@@ -1,6 +1,7 @@
 package com.example.samiii_apiii.Service;
 
 import com.example.samiii_apiii.Entity.Medidor;
+import com.example.samiii_apiii.Entity.Usuario;
 import com.example.samiii_apiii.Repository.MedidorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,4 +42,9 @@ public class MedidorService {
 
         return false;
     }
+
+    public List<Medidor> findByZonaid(String zonaid) {
+        return medidorRepository.findByZonaid(zonaid);
+    }
+
 }

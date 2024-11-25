@@ -1,7 +1,9 @@
 package com.example.samiii_apiii.Service;
 
+import com.example.samiii_apiii.Entity.Medidor;
 import com.example.samiii_apiii.Entity.Usuario;
 import com.example.samiii_apiii.Entity.prop_medidor;
+import com.example.samiii_apiii.Repository.MedidorRepository;
 import com.example.samiii_apiii.Repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,12 +11,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
 
     @Autowired
     private UsuarioRepository userRepository;
+
+    @Autowired
+    private MedidorService medidorService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -170,5 +176,22 @@ public class UsuarioService {
         return false; // Usuario o medidor no encontrado
     }
 
+    public List<Usuario> findOwnersByZona(String zonaId) {
+        // Obtener medidores de la zona
+        List<Medidor> medidoresEnZona = medidorService.findByZonaid(zonaId);
 
+        // Obtener los IDs de los medidores
+        List<String> medidorIds = medidoresEnZona.stream()
+                .map(Medidor::getMedidor_id)
+                .collect(Collectors.toList());
+
+        // Obtener usuarios que tienen estos medidores
+        List<Usuario> usuariosConMedidores = userRepository.findByMedidorIdIn(medidorIds);
+
+        // Filtrar usuarios con el rol OWNER para los medidores
+        return usuariosConMedidores.stream()
+                .filter(usuario -> usuario.getPropietario_medidor().stream()
+                        .anyMatch(pm -> medidorIds.contains(pm.getMedidor_id()) && "OWNER".equals(pm.getRol())))
+                .collect(Collectors.toList());
+    }
 }

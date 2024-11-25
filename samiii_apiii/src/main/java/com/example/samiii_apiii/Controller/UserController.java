@@ -248,4 +248,17 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+
+    @GetMapping("/clientes-zona/{zona_id}")
+    public ResponseEntity<List<Usuario>> getUsuariosPropietariosPorZona(@PathVariable String zona_id) {
+        try {
+            List<Usuario> usuarios = usuarioService.findOwnersByZona(zona_id);
+            if (usuarios.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+            }
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
+    }
 }

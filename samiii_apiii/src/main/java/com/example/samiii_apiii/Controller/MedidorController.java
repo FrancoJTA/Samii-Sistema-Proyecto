@@ -2,6 +2,7 @@ package com.example.samiii_apiii.Controller;
 
 import com.example.samiii_apiii.Entity.Medidor;
 import com.example.samiii_apiii.Entity.Reporte;
+import com.example.samiii_apiii.Entity.Usuario;
 import com.example.samiii_apiii.Repository.MedidorRepository;
 import com.example.samiii_apiii.Service.MedidorService;
 import com.example.samiii_apiii.Service.ReporteService;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @CrossOrigin("*")
@@ -67,4 +69,5 @@ public class MedidorController {
         medidorService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 }
