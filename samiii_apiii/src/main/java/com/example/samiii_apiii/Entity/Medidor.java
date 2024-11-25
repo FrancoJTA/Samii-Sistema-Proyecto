@@ -20,4 +20,5 @@ public class Medidor {
     private Date fechaInstalacion;
     private String Latitud;
     private String Longitud;
+    private String zonaid;
 }

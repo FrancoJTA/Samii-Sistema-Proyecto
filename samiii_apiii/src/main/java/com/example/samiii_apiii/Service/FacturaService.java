@@ -87,8 +87,8 @@ public class FacturaService {
         return facturaRepository.findAll();
     }
 
-    //@Scheduled(cron = "0 0 0 * * ?") // Ejecuta diariamente a medianoche
-    @Scheduled(cron = "0 * * * * ?") // Ejecuta cada minuto
+    @Scheduled(cron = "0 0 0 * * ?") // Ejecuta diariamente a medianoche
+    //@Scheduled(cron = "0 * * * * ?") // Ejecuta cada minuto
     public void desactivarMedidoresPorFacturasImpagas() {
         LocalDateTime fechaActual = LocalDateTime.now();
 
