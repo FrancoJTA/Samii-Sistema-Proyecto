@@ -146,3 +146,26 @@ main {
         transform: translateY(0);
     }
 }
+.otp-modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    margin: auto;
+    text-align: center;
+    z-index: 1000; /* Asegura que esté encima */
+}
+
+.otp-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999; /* Asegura que esté debajo del modal */
+}
+

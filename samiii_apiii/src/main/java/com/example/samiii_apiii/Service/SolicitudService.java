@@ -105,6 +105,10 @@ public class SolicitudService {
             existingSolicitud.setLongitud(solicitudDetails.getLongitud());
         }
 
+        if (solicitudDetails.getMedidor_id() != null) {
+            existingSolicitud.setMedidor_id(solicitudDetails.getMedidor_id());
+        }
+
         return solicitudRepository.save(existingSolicitud);
     }
 

@@ -28,14 +28,47 @@ public class AuthController {
 
     private final Map<String, String> otpStore = new HashMap<>();
 
-    @PostMapping("/login")
+    @PostMapping("/login/cliente")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
 
-        Optional<Usuario> usuarioOpt = usuarioService.findByCorreo(loginRequest.getCorreo());
 
-        if (usuarioOpt.isEmpty()) {
+        boolean exist = usuarioService.verificarRolPorCorreo(loginRequest.getCorreo(),"USER");
+        if (!exist) {
             return ResponseEntity.status(404).body("El usuario no existe.");
         }
+        Optional<Usuario> usuarioOpt = usuarioService.findByCorreo(loginRequest.getCorreo());
+        Usuario usuario = usuarioOpt.get();
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), usuario.getPassword())) {
+            return ResponseEntity.status(401).body("Contraseña incorrecta.");
+        }
+
+        String otp = generateOTP();
+        otpStore.put(usuario.getCorreo(), otp);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                otpStore.remove(usuario.getCorreo());
+                System.out.println("OTP eliminado para " + usuario.getCorreo());
+            }
+        }, 300000);
+
+        emailService.sendOTPEmail(usuario.getCorreo(),"Tu Codigo OTP",otp);
+
+        return ResponseEntity.ok("OTP enviado a tu correo.");
+    }
+    @PostMapping("/login/admin")
+    public ResponseEntity<String> loginadmimn(@RequestBody LoginRequest loginRequest) {
+
+
+        boolean exist = usuarioService.verificarRolPorCorreo(loginRequest.getCorreo(),"ADMIN");
+
+        if (!exist) {
+            return ResponseEntity.status(404).body("El usuario no existe.");
+        }
+
+        Optional<Usuario> usuarioOpt = usuarioService.findByCorreo(loginRequest.getCorreo());
 
         Usuario usuario = usuarioOpt.get();
 
@@ -58,6 +91,40 @@ public class AuthController {
 
         return ResponseEntity.ok("OTP enviado a tu correo.");
     }
+    @PostMapping("/login/monitor")
+    public ResponseEntity<String> loginMonitor(@RequestBody LoginRequest loginRequest) {
+
+
+        boolean exist = usuarioService.verificarRolPorCorreo(loginRequest.getCorreo(),"MONITOR");
+
+        if (!exist) {
+            return ResponseEntity.status(404).body("El usuario no existe.");
+        }
+
+        Optional<Usuario> usuarioOpt = usuarioService.findByCorreo(loginRequest.getCorreo());
+
+        Usuario usuario = usuarioOpt.get();
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), usuario.getPassword())) {
+            return ResponseEntity.status(401).body("Contraseña incorrecta.");
+        }
+
+        String otp = generateOTP();
+        otpStore.put(usuario.getCorreo(), otp);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                otpStore.remove(usuario.getCorreo());
+                System.out.println("OTP eliminado para " + usuario.getCorreo());
+            }
+        }, 300000);
+
+        emailService.sendOTPEmail(usuario.getCorreo(),"Tu Codigo OTP",otp);
+
+        return ResponseEntity.ok("OTP enviado a tu correo.");
+    }
+
 
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOTP(@RequestBody OTPRequest otpRequest) {

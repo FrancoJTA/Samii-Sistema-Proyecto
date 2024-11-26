@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface MedidorRepository extends MongoRepository<Medidor, String> {
     List<Medidor> findByZonaid(String zonaId);
+    List<Medidor> findByZonaidAndActivoTrue(String zonaId);
+
 }

@@ -53,7 +53,7 @@ public class UsuarioService {
 
     //Para Monitor Lista de Monitores
     public List<Usuario> finddByZonaid(String zonaid) {
-        return userRepository.findByZonaid(zonaid);
+        return userRepository.findByZonaidAndRolesContaining(zonaid, "MONITOR");
     }
 
 
@@ -86,9 +86,11 @@ public class UsuarioService {
         if (usuarioDetails.getCorreo() != null) {
             existingUsuario.setCorreo(usuarioDetails.getCorreo());
         }
+
         if (usuarioDetails.getPassword() != null) {
             existingUsuario.setPassword(usuarioDetails.getPassword());
         }
+
         if (usuarioDetails.getTelefono() != null) {
             existingUsuario.setTelefono(usuarioDetails.getTelefono());
         }
@@ -193,5 +195,28 @@ public class UsuarioService {
                 .filter(usuario -> usuario.getPropietario_medidor().stream()
                         .anyMatch(pm -> medidorIds.contains(pm.getMedidor_id()) && "OWNER".equals(pm.getRol())))
                 .collect(Collectors.toList());
+    }
+
+    public List<Usuario> getUsuariosWithUserRoleAndOwnerMedidor() {
+        return userRepository.findUsuariosWithUserRoleAndOwnerMedidor();
+    }
+
+
+    public List<Usuario> findUsuariosWithMonitorRole() {
+        return userRepository.findUsuariosWithMonitorRole();
+    }
+
+    public boolean verificarRolPorCorreo(String correo, String rol) {
+        // Verifica si el usuario con el correo existe
+        Optional<Usuario> usuarioOpt = userRepository.findByCorreo(correo);
+
+        // Si el usuario no existe, devuelve false
+        if (usuarioOpt.isEmpty()) {
+            return false;
+        }
+
+        Usuario usuario = usuarioOpt.get();
+
+        return usuario.getRoles().contains(rol);
     }
 }

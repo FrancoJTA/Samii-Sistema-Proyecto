@@ -23,8 +23,12 @@ const Navbar = () => {
 
     // Manejar cierre de sesión
     const handleLogout = () => {
-        localStorage.removeItem("authToken"); // Eliminar token de autenticación
-        navigate("/"); // Redirigir a la página de login
+        const confirmLogout = window.confirm("¿Estás seguro de que deseas cerrar sesión?");
+        if (confirmLogout) {
+            localStorage.removeItem("authToken"); // Eliminar token de autenticación
+            localStorage.removeItem("isAuthenticated"); // Eliminar indicador de sesión
+            navigate("/"); // Redirigir a la página de login
+        }
     };
 
     return (

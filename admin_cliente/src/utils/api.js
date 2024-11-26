@@ -22,10 +22,18 @@ export const postData = async (endpoint, data) => {
             },
             body: JSON.stringify(data),
         });
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return await response.json();
+
+        // Verificar si la respuesta es texto o JSON
+        const contentType = response.headers.get("Content-Type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json(); // Procesar como JSON
+        } else {
+            return await response.text(); // Procesar como texto
+        }
     } catch (error) {
         console.error("Error posting data:", error);
         throw error;
@@ -50,6 +58,7 @@ export const putData = async (endpoint, data) => {
         throw error;
     }
 };
+
 export const deleteData = async (endpoint) => {
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -64,6 +73,28 @@ export const deleteData = async (endpoint) => {
         return await response.json();
     } catch (error) {
         console.error("Error deleting data:", error);
+        throw error;
+    }
+};
+
+// Método para solicitar OTP
+export const requestOtp = async (correo, password) => {
+    try {
+        const response = await postData("/auth/login/admin", { correo, password });
+        return response; // Respuesta del backend (puede incluir un mensaje o un ID de sesión)
+    } catch (error) {
+        console.error("Error requesting OTP:", error);
+        throw error;
+    }
+};
+
+// Método para verificar OTP
+export const verifyOtp = async (correo, otp) => {
+    try {
+        const response = await postData("/auth/verify-otp   ", { correo, otp });
+        return response; // Respuesta del backend (puede incluir un token de autenticación)
+    } catch (error) {
+        console.error("Error verifying OTP:", error);
         throw error;
     }
 };

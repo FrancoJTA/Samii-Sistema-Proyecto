@@ -1,14 +1,51 @@
 import React, { useState } from "react";
-import "../styles/LogInStyle.css"; // Archivo CSS simplificado
+import { useNavigate } from "react-router-dom";
+import Modal from "react-modal";
+import { requestOtp, verifyOtp } from "../utils/api";
+import "../styles/LogInStyle.css";
+
+Modal.setAppElement("#root");
 
 const Login = () => {
-    const [email, setEmail] = useState("");
+    const [correo, setCorreo] = useState("");
     const [password, setPassword] = useState("");
+    const [otp, setOtp] = useState("");
+    const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        console.log("Email:", email, "Password:", password);
-        // Aquí manejarás el proceso de autenticación
+        setIsLoading(true);
+        try {
+            const response = await requestOtp(correo, password);
+            alert(response); // Notifica al usuario
+            setIsOtpModalOpen(true); // Abre el modal para OTP
+        } catch (error) {
+            alert("Error al solicitar OTP: " + error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleOtpSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const response = await verifyOtp(correo, otp);
+            if (response === "Autenticación exitosa.") {
+                localStorage.setItem("isAuthenticated", "true");
+                alert("Login exitoso");
+                setIsOtpModalOpen(false);
+                navigate("/panel"); // Redirige al panel
+            } else {
+                alert("Error: " + response);
+            }
+        } catch (error) {
+            alert("Error al verificar OTP: " + error.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -16,16 +53,18 @@ const Login = () => {
             <main>
                 <div className="welcome-section">
                     <h1>Bienvenido</h1>
-                    <p className="italic-text">Por favor llena los datos de administrador para poder ingresar.</p>
+                    <p className="italic-text">
+                        Por favor llena los datos de administrador para poder ingresar.
+                    </p>
                 </div>
                 <div className="form-section">
-                    <form className="login-form" onSubmit={handleSubmit}>
+                    <form className="login-form" onSubmit={handleLoginSubmit}>
                         <input
                             type="email"
                             placeholder="E-MAIL"
                             className="input-field"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={correo}
+                            onChange={(e) => setCorreo(e.target.value)}
                             required
                         />
                         <input
@@ -36,7 +75,9 @@ const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
-                        <button type="submit" className="btn-confirm">CONFIRMAR</button>
+                        <button type="submit" className="btn-confirm" disabled={isLoading}>
+                            {isLoading ? "Cargando..." : "CONFIRMAR"}
+                        </button>
                     </form>
                 </div>
                 <div className="wave">
@@ -52,8 +93,29 @@ const Login = () => {
                         ></path>
                     </svg>
                 </div>
+                <Modal
+                    isOpen={isOtpModalOpen}
+                    onRequestClose={() => setIsOtpModalOpen(false)}
+                    contentLabel="OTP Verification"
+                    className="otp-modal"
+                    overlayClassName="otp-overlay"
+                >
+                    <h2>Verificar OTP</h2>
+                    <form onSubmit={handleOtpSubmit}>
+                        <input
+                            type="text"
+                            placeholder="Ingrese OTP"
+                            className="input-field"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            required
+                        />
+                        <button type="submit" className="btn-confirm" disabled={isLoading}>
+                            {isLoading ? "Verificando..." : "VALIDAR OTP"}
+                        </button>
+                    </form>
+                </Modal>
             </main>
-
         </div>
     );
 };

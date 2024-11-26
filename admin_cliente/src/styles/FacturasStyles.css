@@ -1,0 +1,34 @@
+.facturas-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.facturas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.facturas-table th,
+.facturas-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.facturas-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.facturas-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.facturas-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+h1 {
+    margin-bottom: 20px;
+}

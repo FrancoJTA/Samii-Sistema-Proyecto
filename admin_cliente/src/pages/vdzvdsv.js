@@ -1,68 +1,74 @@
-import React, { useState } from "react";
-import "../styles/SolicitudesStyles.css"
+import React, { useState, useEffect } from "react";
+import "../styles/SolicitudesStyles.css";
 import { fetchData, postData } from "../utils/api";
+import { useNavigate } from "react-router-dom"; // Para manejar la navegación
 
 const Solicitudes = () => {
-    const [solicitudes, setSolicitudes] = useState([
-        {
-            solicitud_id: "1",
-            tipo: "Instalación",
-            descripcion: "Solicitud para instalar un nuevo medidor.",
-            fechasolicitud: "2024-11-23T10:00:00",
-            estado: "Pendiente",
-            reporte_id: null, // No tiene reporte asociado
-            nombre: "Juan",
-            apellido: "Pérez",
-            correo: "juan.perez@example.com",
-            ci: "12345678",
-            telefono: "987654321",
-            Latitud: "-17.7833",
-            Longitud: "-63.1821",
-        },
-        {
-            solicitud_id: "2",
-            tipo: "Reparación",
-            descripcion: "Reparación de un medidor existente.",
-            fechasolicitud: "2024-11-22T15:30:00",
-            estado: "En Proceso",
-            reporte_id: "101", // Tiene reporte asociado
-            nombre: "María",
-            apellido: "Gómez",
-            correo: "maria.gomez@example.com",
-            ci: "87654321",
-            telefono: "123456789",
-            Latitud: "-17.7834",
-            Longitud: "-63.1822",
-        },
-    ]);
-
+    const [solicitudes, setSolicitudes] = useState([]);
     const [selectedSolicitud, setSelectedSolicitud] = useState(null);
     const [showReportForm, setShowReportForm] = useState(false);
     const [reportFormData, setReportFormData] = useState({
         tipo: "",
         descripcion: "",
     });
-
+    const navigate = useNavigate();
     const reportTypes = ["Instalación", "Reparación", "Mantenimiento"]; // Tipos de reporte disponibles
+    const [reportData, setReportData] = useState(null); // Reporte asociado si existe
+    const [responseReportData, setResponseReportData] = useState(null);
 
-    const reportData = {
-        reporte_id: "101",
-        tipo: "Reparación",
-        descripcion: "El medidor requiere mantenimiento por averías.",
-        fechareporte: "2024-11-22T16:00:00",
-        estado: "Finalizado",
-    };
+    // Cargar solicitudes desde la API
+    useEffect(() => {
+        const loadSolicitudes = async () => {
+            try {
+                const data = await fetchData("/solicitud"); // GET solicitudes desde la API
+                setSolicitudes(data);
+            } catch (error) {
+                console.error("Error loading solicitudes:", error);
+            }
+        };
+
+        loadSolicitudes();
+    }, []);
 
     // Manejar la selección de una solicitud
-    const handleSelectSolicitud = (id) => {
+    const handleSelectSolicitud = async (id) => {
         const solicitud = solicitudes.find((s) => s.solicitud_id === id);
         setSelectedSolicitud(solicitud);
-        setShowReportForm(false); // Cierra el formulario al seleccionar una nueva solicitud
+        setShowReportForm(false);
+
+        // Si la solicitud tiene un reporte asociado, cargar su detalle
+        if (solicitud.reporte_id) {
+            try {
+                const reportDetail = await fetchData(`/reporte/${solicitud.reporte_id}`);
+                setReportData(reportDetail);
+
+                // Si el reporte tiene una respuesta asociada, cargar los detalles de la respuesta
+                if (reportDetail.respuesta_id) {
+                    try {
+                        const responseDetail = await fetchData(`/respuesta/${reportDetail.respuesta_id}`);
+                        setResponseReportData(responseDetail);
+                    } catch (error) {
+                        console.error("Error fetching response detail:", error);
+                        setResponseReportData(null);
+                    }
+                } else {
+                    setResponseReportData(null);
+                }
+            } catch (error) {
+                console.error("Error fetching report detail:", error);
+                setReportData(null);
+                setResponseReportData(null);
+            }
+        } else {
+            setReportData(null);
+            setResponseReportData(null);
+        }
     };
 
-    // Manejar el cierre del detalle
     const handleCloseDetail = () => {
         setSelectedSolicitud(null);
+        setReportData(null);
+        setResponseReportData(null);
         setShowReportForm(false);
     };
 
@@ -78,23 +84,38 @@ const Solicitudes = () => {
     };
 
     // Manejar el envío del formulario de reporte
-    const handleReportSubmit = (e) => {
+    const handleReportSubmit = async (e) => {
         e.preventDefault();
 
         const newReport = {
-            reporte_id: Date.now().toString(), // Generar un ID único
             tipo: reportFormData.tipo,
             descripcion: reportFormData.descripcion,
-            fechareporte: new Date().toISOString(),
-            estado: "Creado",
             solicitud_id: selectedSolicitud.solicitud_id, // Vincular con la solicitud seleccionada
         };
 
-        console.log("Nuevo Reporte Creado:", newReport);
+        try {
+            const createdReport = await postData("/reporte", newReport);
 
-        // Limpia el formulario
-        setReportFormData({ tipo: "", descripcion: "" });
-        setShowReportForm(false);
+            setSolicitudes((prevSolicitudes) =>
+                prevSolicitudes.map((s) =>
+                    s.solicitud_id === selectedSolicitud.solicitud_id
+                        ? { ...s, reporte_id: createdReport.reporte_id }
+                        : s
+                )
+            );
+
+            setReportFormData({ tipo: "", descripcion: "" });
+            setShowReportForm(false);
+            setReportData(createdReport);
+        } catch (error) {
+            console.error("Error creating report:", error);
+        }
+    };
+
+    const handleNavigateToCreateClient = () => {
+        if (selectedSolicitud && responseReportData) {
+            navigate(`/crear-cliente/${selectedSolicitud.solicitud_id}/${responseReportData.respuesta_id}`);
+        }
     };
 
     return (
@@ -150,14 +171,14 @@ const Solicitudes = () => {
                     </p>
                     <h3>Ubicación</h3>
                     <p>
-                        <strong>Latitud:</strong> {selectedSolicitud.Latitud}
+                        <strong>Latitud:</strong> {selectedSolicitud.latitud}
                     </p>
                     <p>
-                        <strong>Longitud:</strong> {selectedSolicitud.Longitud}
+                        <strong>Longitud:</strong> {selectedSolicitud.longitud}
                     </p>
 
                     {/* Si tiene un reporte asociado, mostrar el detalle del reporte */}
-                    {selectedSolicitud.reporte_id ? (
+                    {reportData ? (
                         <div className="report-detail">
                             <h3>Reporte Asociado</h3>
                             <p>
@@ -176,6 +197,23 @@ const Solicitudes = () => {
                             <p>
                                 <strong>Estado:</strong> {reportData.estado}
                             </p>
+
+                            {responseReportData ? (
+                                <div className="response-detail">
+                                    <h3>Respuesta Asociada</h3>
+                                    <p><strong>ID de la Respuesta:</strong> {responseReportData.response_id}</p>
+                                    <p><strong>Detalles:</strong> {responseReportData.descripcion}</p>
+                                    <p><strong>Respuesta:</strong> {responseReportData.respuesta}</p>
+                                    <p><strong>Fecha de Respuesta:</strong> {new Date(responseReportData.fechaRespuesta).toLocaleString()}</p>
+                                    {selectedSolicitud.estado !== "Completado" && responseReportData.respuesta === "Completado Óptimo" && (
+                                        <button onClick={handleNavigateToCreateClient}>
+                                            Crear Cliente
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <p>No hay respuesta asociada a este reporte.</p>
+                            )}
                         </div>
                     ) : (
                         <>

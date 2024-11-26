@@ -151,7 +151,7 @@ public class ReporteController {
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con id: " + usuarioId));
 
             usuario.setEstado("Ocupado");
-            usuarioService.save(usuario);
+            usuarioService.update(usuarioId,usuario);
 
             Reporte reporte = reporteService.findById(reporteId)
                     .orElseThrow(() -> new IllegalArgumentException("Reporte no encontrado con id: " + reporteId));

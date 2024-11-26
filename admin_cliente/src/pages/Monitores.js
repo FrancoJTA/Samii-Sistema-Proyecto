@@ -1,152 +1,291 @@
-import React, { useState } from "react";
-import "../styles/MonitorStyle.css"
+import React, { useState, useEffect } from "react";
+import Modal from "react-modal";
+import "../styles/MonitorStyle.css";
+import { fetchData, postData, putData, deleteData } from "../utils/api";
 
-const UserManagement = () => {
-    const [users, setUsers] = useState([
-        { id: 1, name: "Usuario 1", email: "usuario1@example.com", role: "Admin" },
-        { id: 2, name: "Usuario 2", email: "usuario2@example.com", role: "User" },
-        { id: 3, name: "Usuario 3", email: "usuario3@example.com", role: "Guest" },
-    ]); // Lista inicial de usuarios
-    const [roles, setRoles] = useState(["All", "Admin", "User", "Guest"]); // Valores dinámicos del combo box
-    const [selectedRole, setSelectedRole] = useState("All"); // Filtro seleccionado
-    const [formData, setFormData] = useState({ name: "", email: "", role: "User" });
-    const [editId, setEditId] = useState(null); // Identifica el usuario que se está editando
-    const [searchTerm, setSearchTerm] = useState(""); // Término de búsqueda
+Modal.setAppElement("#root");
 
-    // Manejar cambios en los inputs
-    const handleChange = (e) => {
+const Monitores = () => {
+    const [monitores, setMonitores] = useState([]);
+    const [selectedMonitor, setSelectedMonitor] = useState(null);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [newMonitor, setNewMonitor] = useState({
+        nombre: "",
+        apellido: "",
+        correo: "",
+        ci: "",
+        telefono: "",
+        zonaid: "",
+        estado: "Libre",
+        roles: ["MONITOR"],
+    });
+
+    const [editMonitor, setEditMonitor] = useState(null);
+
+    // Fetch Monitors
+    useEffect(() => {
+        const loadMonitores = async () => {
+            try {
+                const data = await fetchData("/usuarios/monitores");
+                console.log(data);
+                setMonitores(data);
+            } catch (error) {
+                console.error("Error fetching monitores:", error);
+            }
+        };
+
+        loadMonitores();
+    }, []);
+
+    // Open Create Modal
+    const handleOpenCreateModal = () => {
+        setIsCreateModalOpen(true);
+    };
+
+    const handleCloseCreateModal = () => {
+        setIsCreateModalOpen(false);
+        setNewMonitor({
+            nombre: "",
+            apellido: "",
+            correo: "",
+            ci: "",
+            telefono: "",
+            zonaid: "",
+            estado: "Activo",
+            roles: ["Monitor"],
+        });
+    };
+
+    // Open Edit Modal
+    const handleOpenEditModal = (monitor) => {
+        setEditMonitor(monitor);
+        setIsEditModalOpen(true);
+    };
+
+    const handleCloseEditModal = () => {
+        setIsEditModalOpen(false);
+        setEditMonitor(null);
+    };
+
+    // Handle Input Changes
+    const handleNewMonitorChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setNewMonitor({ ...newMonitor, [name]: value });
     };
 
-    // Manejar cambios en el buscador
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
+    const handleEditMonitorChange = (e) => {
+        const { name, value } = e.target;
+        setEditMonitor({ ...editMonitor, [name]: value });
     };
 
-    // Manejar cambios en el combo box
-    const handleRoleChange = (e) => {
-        setSelectedRole(e.target.value);
-    };
-
-    // Agregar un nuevo usuario
-    const handleAddUser = () => {
-        if (formData.name && formData.email) {
-            const newUser = {
-                id: Date.now(), // Genera un ID único
-                ...formData,
-            };
-            setUsers([...users, newUser]); // Actualiza la lista
-            setFormData({ name: "", email: "", role: "User" }); // Limpia el formulario
+    // Create Monitor
+    const handleCreateMonitor = async () => {
+        try {
+            const createdMonitor = await postData("/usuarios", newMonitor);
+            setMonitores((prev) => [...prev, createdMonitor]);
+            handleCloseCreateModal();
+        } catch (error) {
+            console.error("Error creating monitor:", error);
         }
     };
 
-    // Editar un usuario
-    const handleEditUser = (id) => {
-        const userToEdit = users.find((user) => user.id === id);
-        setFormData(userToEdit);
-        setEditId(id); // Marca el usuario en edición
+    // Update Monitor
+    const handleUpdateMonitor = async () => {
+        try {
+            const updatedMonitor = await putData(`/usuarios/${editMonitor.usuario_id}`, editMonitor);
+            setMonitores((prev) =>
+                prev.map((monitor) =>
+                    monitor.usuario_id === updatedMonitor.usuario_id ? updatedMonitor : monitor
+                )
+            );
+            handleCloseEditModal();
+        } catch (error) {
+            console.error("Error updating monitor:", error);
+        }
     };
 
-    // Guardar los cambios del usuario editado
-    const handleSaveUser = () => {
-        setUsers(
-            users.map((user) =>
-                user.id === editId ? { ...user, ...formData } : user
-            )
-        );
-        setEditId(null); // Limpia el estado de edición
-        setFormData({ name: "", email: "", role: "User" }); // Limpia el formulario
+    // Delete Monitor
+    const handleDeleteMonitor = async (monitorId) => {
+        if (window.confirm("¿Estás seguro de que deseas eliminar este monitor?")) {
+            try {
+                await deleteData(`/usuarios/${monitorId}`);
+                setMonitores((prev) => prev.filter((monitor) => monitor.usuario_id !== monitorId));
+            } catch (error) {
+                console.error("Error deleting monitor:", error);
+            }
+        }
     };
-
-    // Eliminar un usuario
-    const handleDeleteUser = (id) => {
-        setUsers(users.filter((user) => user.id !== id));
-    };
-
-    // Filtrar usuarios por nombre y rol seleccionado
-    const filteredUsers = users
-        .filter((user) =>
-            user.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .filter((user) => {
-            if (selectedRole === "All") return true;
-            return user.role === selectedRole;
-        });
 
     return (
-        <div className="user-management">
-            <h1>Gestión de Usuarios</h1>
-            <div className="search-bar">
-                <input
-                    type="text"
-                    placeholder="Buscar por nombre..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                />
-                <select value={selectedRole} onChange={handleRoleChange}>
-                    {roles.map((role) => (
-                        <option key={role} value={role}>
-                            {role}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="form">
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Nombre"
-                    value={formData.name}
-                    onChange={handleChange}
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Correo Electrónico"
-                    value={formData.email}
-                    onChange={handleChange}
-                />
-                <select
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                >
-                    {roles
-                        .filter((role) => role !== "All") // Excluye "All" del formulario
-                        .map((role) => (
-                            <option key={role} value={role}>
-                                {role}
-                            </option>
-                        ))}
-                </select>
-                {editId ? (
-                    <button onClick={handleSaveUser}>Guardar Cambios</button>
-                ) : (
-                    <button onClick={handleAddUser}>Agregar Usuario</button>
-                )}
-            </div>
-
-            <ul className="user-list">
-                {filteredUsers.map((user) => (
-                    <li key={user.id} className="user-item">
-                        <span>{user.name}</span>
-                        <span>{user.email}</span>
-                        <span>{user.role}</span>
-                        <div>
-                            <button onClick={() => handleEditUser(user.id)}>
-                                Editar
-                            </button>
-                            <button onClick={() => handleDeleteUser(user.id)}>
-                                Eliminar
-                            </button>
-                        </div>
-                    </li>
+        <div className="monitores-container">
+            <h1>Gestión de Monitores</h1>
+            <button onClick={handleOpenCreateModal} className="create-monitor-button">
+                Crear Nuevo Monitor
+            </button>
+            <table className="monitores-table">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Zona</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {monitores.map((monitor) => (
+                    <tr key={monitor.usuario_id}>
+                        <td>{`${monitor.nombre} ${monitor.apellido}`}</td>
+                        <td>{monitor.correo}</td>
+                        <td>{monitor.zonaid || "Sin Asignar"}</td>
+                        <td>{monitor.estado}</td>
+                        <td>
+                            <button onClick={() => handleOpenEditModal(monitor)}>Editar</button>
+                            <button onClick={() => handleDeleteMonitor(monitor.usuario_id)}>Eliminar</button>
+                        </td>
+                    </tr>
                 ))}
-            </ul>
+                </tbody>
+            </table>
+
+            {/* Modal Crear Monitor */}
+            <Modal
+                isOpen={isCreateModalOpen}
+                onRequestClose={handleCloseCreateModal}
+                className="modal"
+                overlayClassName="modal-overlay"
+            >
+                <h2>Crear Monitor</h2>
+                <div className="form-container">
+                    <label>
+                        Nombre:
+                        <input
+                            type="text"
+                            name="nombre"
+                            value={newMonitor.nombre}
+                            onChange={handleNewMonitorChange}
+                        />
+                    </label>
+                    <label>
+                        Apellido:
+                        <input
+                            type="text"
+                            name="apellido"
+                            value={newMonitor.apellido}
+                            onChange={handleNewMonitorChange}
+                        />
+                    </label>
+                    <label>
+                        Correo:
+                        <input
+                            type="email"
+                            name="correo"
+                            value={newMonitor.correo}
+                            onChange={handleNewMonitorChange}
+                        />
+                    </label>
+                    <label>
+                        CI:
+                        <input
+                            type="text"
+                            name="ci"
+                            value={newMonitor.ci}
+                            onChange={handleNewMonitorChange}
+                        />
+                    </label>
+                    <label>
+                        Teléfono:
+                        <input
+                            type="text"
+                            name="telefono"
+                            value={newMonitor.telefono}
+                            onChange={handleNewMonitorChange}
+                        />
+                    </label>
+                    <label>
+                        Zona:
+                        <input
+                            type="text"
+                            name="zonaid"
+                            value={newMonitor.zonaid}
+                            onChange={handleNewMonitorChange}
+                        />
+                    </label>
+                    <button onClick={handleCreateMonitor}>Crear</button>
+                    <button onClick={handleCloseCreateModal}>Cancelar</button>
+                </div>
+            </Modal>
+
+            {/* Modal Editar Monitor */}
+            <Modal
+                isOpen={isEditModalOpen}
+                onRequestClose={handleCloseEditModal}
+                className="modal"
+                overlayClassName="modal-overlay"
+            >
+                <h2>Editar Monitor</h2>
+                <div className="form-container">
+                    <label>
+                        Nombre:
+                        <input
+                            type="text"
+                            name="nombre"
+                            value={editMonitor?.nombre || ""}
+                            onChange={handleEditMonitorChange}
+                        />
+                    </label>
+                    <label>
+                        Apellido:
+                        <input
+                            type="text"
+                            name="apellido"
+                            value={editMonitor?.apellido || ""}
+                            onChange={handleEditMonitorChange}
+                        />
+                    </label>
+                    <label>
+                        Correo:
+                        <input
+                            type="email"
+                            name="correo"
+                            value={editMonitor?.correo || ""}
+                            readOnly
+                        />
+                    </label>
+                    <label>
+                        CI:
+                        <input
+                            type="text"
+                            name="ci"
+                            value={editMonitor?.ci || ""}
+                            readOnly
+                        />
+                    </label>
+                    <label>
+                        Teléfono:
+                        <input
+                            type="text"
+                            name="telefono"
+                            value={editMonitor?.telefono || ""}
+                            onChange={handleEditMonitorChange}
+                        />
+                    </label>
+                    <label>
+                        Zona:
+                        <input
+                            type="text"
+                            name="zonaid"
+                            value={editMonitor?.zonaid || ""}
+                            onChange={handleEditMonitorChange}
+                        />
+                    </label>
+                    <button onClick={handleUpdateMonitor}>Guardar</button>
+                    <button onClick={handleCloseEditModal}>Cancelar</button>
+                </div>
+            </Modal>
         </div>
     );
 };
 
-export default UserManagement;
+export default Monitores;

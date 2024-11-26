@@ -1,9 +1,11 @@
 package com.example.samiii_apiii.Controller;
 
+import com.example.samiii_apiii.Entity.Factura;
 import com.example.samiii_apiii.Entity.Medidor;
 import com.example.samiii_apiii.Entity.Reporte;
 import com.example.samiii_apiii.Entity.Usuario;
 import com.example.samiii_apiii.Repository.MedidorRepository;
+import com.example.samiii_apiii.Service.FacturaService;
 import com.example.samiii_apiii.Service.MedidorService;
 import com.example.samiii_apiii.Service.ReporteService;
 import org.bson.types.ObjectId;
@@ -22,6 +24,10 @@ import java.util.List;
 public class MedidorController {
     @Autowired
     private MedidorService medidorService;
+
+    @Autowired
+    private FacturaService facturaService;
+
 
     @Autowired
     private ReporteService reporteService;
@@ -48,9 +54,16 @@ public class MedidorController {
         reporte.setFechareporte(LocalDateTime.now());
         reporte.setEstado("En Espera");
         reporte.setMedidor_id(medidorId);
-        reporte.setDescripcion("Instalar Medidor para tanto tanto");
+        reporte.setDescripcion("Instalar Medidor para uso de medidor inteligente    ");
         reporte.setTipo("Instalar Medidor");
         reporteService.save(reporte);
+        Factura factura = new Factura();
+        factura.setMedidorId(medidorId);
+        factura.setFechaEmision(LocalDateTime.now());
+        factura.setFechaVencimiento(factura.getFechaEmision().plusDays(1));
+        factura.setFechaPagado(LocalDateTime.now());
+        factura.setPagada(true);
+
 
         return medidorService.save(medidor);
     }

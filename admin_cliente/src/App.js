@@ -8,32 +8,82 @@ import CrearCliente from "./pages/CrearCliente";
 import Reportes from "./pages/Reporte";
 import Monitor from "./pages/Monitores";
 import Navbar from "./components/Navbar";
-import  "./App.css";
+import PrivateRoute from "./components/PrivateRoute"; // Importa el componente
+
+import "./App.css";
+import Clientes from "./pages/Clientes";
+import Facturas from "./pages/Facturas";
 
 function App() {
     return (
         <Router>
-            {/* El Navbar se muestra dinámicamente basado en la ruta */}
             <Navbar />
             <Routes>
-                {/* Ruta para la página de inicio de sesión */}
                 <Route path="/" element={<Login />} />
-
-                {/* Ruta protegida para el panel */}
-                <Route path="/panel" element={<Panel />} />
-                <Route path="/monitores" element={<Monitor />} />
-                <Route path="/solicitudes" element={<Solicitudes />} />
-                <Route path="/reportes" element={<Reportes />} />
-                <Route path="/zona" element={<Zonas />} />
-                <Route path="/crear-cliente/:solicitudId/:respuestaId" element={<CrearCliente />} />
-
-                {/* Si decides habilitar PrivateRoute en el futuro */}
-                {/* <Route
-                path="/panel"
-                element={
-                <PrivateRoute>
-                    <Panel />
-                </PrivateRoute>}/> */}
+                <Route
+                    path="/panel"
+                    element={
+                        <PrivateRoute>
+                            <Panel />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/monitores"
+                    element={
+                        <PrivateRoute>
+                            <Monitor />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/clientes"
+                    element={
+                        <PrivateRoute>
+                            <Clientes />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/facturas"
+                    element={
+                        <PrivateRoute>
+                            <Facturas />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/solicitudes"
+                    element={
+                        <PrivateRoute>
+                            <Solicitudes />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/reportes"
+                    element={
+                        <PrivateRoute>
+                            <Reportes />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/zona"
+                    element={
+                        <PrivateRoute>
+                            <Zonas />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/crear-cliente/:solicitudId/:respuestaId"
+                    element={
+                        <PrivateRoute>
+                            <CrearCliente />
+                        </PrivateRoute>
+                    }
+                />
             </Routes>
         </Router>
     );

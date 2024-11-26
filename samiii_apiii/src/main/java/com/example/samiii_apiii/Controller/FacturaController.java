@@ -31,6 +31,12 @@ public class FacturaController {
         return ResponseEntity.ok(facturaService.obtenerFacturasPorMedidorId(medidorId));
     }
 
+    @GetMapping("/user/{usuarioId}")
+    public ResponseEntity<List<Usuario>> obtenerFacturasPorUsuario(@PathVariable String usuarioId) {
+        return ResponseEntity.ok(facturaService.obtenerFacturasPorUsuarioId(usuarioId));
+    }
+
+
     @GetMapping
     public ResponseEntity<List<Factura>> obtenerTodasLasFacturas() {
         return ResponseEntity.ok(facturaService.obtenerTodasLasFacturas());
@@ -66,40 +72,44 @@ public class FacturaController {
 
         Factura factura = facturaOptional.get();
 
+        if(factura.isPagada()){
         // Extraer datos del JSON usando el mapa
-        String usuarioId = (String) pagoData.get("usuario_id");
-        float samiCoins = ((Number) pagoData.get("sami_coins")).floatValue();
-        float dinero = ((Number) pagoData.get("dinero")).floatValue();
+            String usuarioId = (String) pagoData.get("usuario_id");
+            float samiCoins = ((Number) pagoData.get("sami_coins")).floatValue();
+            float dinero = ((Number) pagoData.get("dinero")).floatValue();
 
-        // Verificar si el usuario tiene suficientes SamiiCoins
-        Optional<Usuario> usuarioOptional = usuarioService.findById(usuarioId);
-        if (usuarioOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Usuario no encontrado
-        }
-
-        Usuario usuario = usuarioOptional.get();
-        if (usuario.getSamii_coin() < samiCoins) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Insuficientes SamiiCoins
-        }
-
-        // Lógica de pago con SamiiCoins y dinero
-        if (procesarPago(factura, samiCoins, dinero)) {
-            // Actualizar los SamiiCoins del usuario
-            usuario.setSamii_coin(usuario.getSamii_coin() - samiCoins);
-            usuarioService.update(usuarioId,usuario);
-
-            // Actualizar los datos de la factura
-            factura.setUsuarioId(usuarioId);
-            factura.setPagada(true); // Cambiar estado a pagada
-            factura.setFechaPagado(LocalDateTime.now());
-            if (samiCoins != 0) {
-                factura.setDescuentoSamiicoin(samiCoins);
-                factura.setUsoSamiiCoins(true);
+            // Verificar si el usuario tiene suficientes SamiiCoins
+            Optional<Usuario> usuarioOptional = usuarioService.findById(usuarioId);
+            if (usuarioOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Usuario no encontrado
             }
-            facturaService.guardarFactura(factura); // Guardar cambios
-            return ResponseEntity.ok(factura);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(factura);
+
+            Usuario usuario = usuarioOptional.get();
+            if (usuario.getSamii_coin() < samiCoins) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Insuficientes SamiiCoins
+            }
+
+            // Lógica de pago con SamiiCoins y dinero
+            if (procesarPago(factura, samiCoins, dinero)) {
+                // Actualizar los SamiiCoins del usuario
+                usuario.setSamii_coin(usuario.getSamii_coin() - samiCoins);
+                usuarioService.update(usuarioId,usuario);
+
+                // Actualizar los datos de la factura
+                factura.setUsuarioId(usuarioId);
+                factura.setPagada(true); // Cambiar estado a pagada
+                factura.setFechaPagado(LocalDateTime.now());
+                if (samiCoins != 0) {
+                    factura.setDescuentoSamiicoin(samiCoins);
+                    factura.setUsoSamiiCoins(true);
+                }
+                facturaService.guardarFactura(factura); // Guardar cambios
+                return ResponseEntity.ok(factura);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(factura);
+            }
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
@@ -107,10 +117,8 @@ public class FacturaController {
         float totalPago = (samiCoins * 1) + dinero;
 
         if (totalPago >= factura.getCostoTotal()) {
-            // Manejar lógica adicional, como restar SamiiCoins al usuario si aplica
             return true;
         }
-
-        return false; // Pago insuficiente
+        return false;
     }
 }

@@ -2,6 +2,7 @@ package com.example.samiii_apiii.Service;
 
 import com.example.samiii_apiii.Entity.Factura;
 import com.example.samiii_apiii.Entity.Medidor;
+import com.example.samiii_apiii.Entity.Usuario;
 import com.example.samiii_apiii.Repository.FacturaRepository;
 import com.example.samiii_apiii.Repository.MedidorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,11 @@ public class FacturaService {
         return facturaRepository.findByMedidorId(medidorId);
     }
 
+    public List<Usuario> obtenerFacturasPorUsuarioId(String medidorId) {
+        return facturaRepository.findByUsuarioId(medidorId);
+    }
+
+
     public List<Factura> obtenerTodasLasFacturas() {
         return facturaRepository.findAll();
     }
@@ -112,6 +118,8 @@ public class FacturaService {
     public Optional<Factura> obtenerFacturaPorId(String facturaId) {
         return facturaRepository.findById(facturaId);
     }
+
+
 
     public Factura guardarFactura(Factura factura) {
         return facturaRepository.save(factura);

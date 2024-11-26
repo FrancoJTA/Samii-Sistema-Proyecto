@@ -1,5 +1,6 @@
 package com.example.samiii_apiii.Controller;
 
+import com.example.samiii_apiii.Entity.Medidor;
 import com.example.samiii_apiii.Entity.Reporte;
 import com.example.samiii_apiii.Entity.RespuestaReporte;
 import com.example.samiii_apiii.Entity.Usuario;
@@ -81,13 +82,23 @@ public class RespuestaController {
             Usuario usuario = usuarioService.findById(respuestaReporte.getMonitor_id())
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con id: " + respuestaReporte.getMonitor_id()));
             usuario.setEstado("Libre");
-            usuarioService.save(usuario);
+            usuarioService.update(respuestaReporte.getMonitor_id(),usuario);
 
             // Verificar si es un reporte de instalación de medidor y respuesta es "Completado Óptimo"
             if ("Instalar Medidor".equalsIgnoreCase(reporte.getTipo())
                     && "Completado Óptimo".equalsIgnoreCase(respuestaReporte.getRespuesta())) {
                 // Buscar el medidor y actualizar su estado a activo=true
                 boolean medidorActualizado = medidorService.updateMedidorEstado(reporte.getMedidor_id(), true);
+                Optional<Medidor> med=medidorService.findById(reporte.getMedidor_id());
+                if (!med.isPresent()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("Medidor no encontrado con id: " + respuestaReporte.getReporte_id());
+                }
+                Medidor medidooor=med.get();
+
+                medidooor.setZonaid(reporte.getZonaid());
+                medidooor.setFechaInstalacion(LocalDateTime.now());
+                medidorService.save(medidooor);
 
                 if (!medidorActualizado) {
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -34,5 +34,5 @@ public class Solicitud {
     // datos que reutilizare para el apartado medidor
     private String Latitud;
     private String Longitud;
-
+    private String medidor_id;
 }

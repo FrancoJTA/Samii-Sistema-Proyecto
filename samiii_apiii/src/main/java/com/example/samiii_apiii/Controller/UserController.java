@@ -40,15 +40,12 @@ public class UserController {
         try {
             // Buscar si el usuario ya existe en la base de datos
             Optional<Usuario> existingUserOpt = usuarioService.findByCorreo(usuario.getCorreo());
-
             if (existingUserOpt.isPresent()) {
                 // Si el usuario ya existe, actualizar la información
                 Usuario existingUser = existingUserOpt.get();
-
                 // Extender la lista de prop_medidor
                 List<prop_medidor> existingMedidores = existingUser.getPropietario_medidor();
                 List<prop_medidor> newMedidores = usuario.getPropietario_medidor();
-
                 newMedidores.forEach(newMedidor -> {
                     boolean exists = existingMedidores.stream()
                             .anyMatch(existingMedidor -> existingMedidor.getMedidor_id().equals(newMedidor.getMedidor_id()));
@@ -56,7 +53,6 @@ public class UserController {
                         existingMedidores.add(newMedidor);
                     }
                 });
-
                 existingUser.setPropietario_medidor(existingMedidores);
 
                 // Actualizar otros datos (excepto el correo)
@@ -109,13 +105,14 @@ public class UserController {
         }
     }
 
-
     private String generateRandomPassword() {
         int min = 100000; // Número mínimo de 6 dígitos
         int max = 999999; // Número máximo de 6 dígitos
         int randomPassword = (int) (Math.random() * (max - min + 1)) + min;
         return String.valueOf(randomPassword);
     }
+
+
 
     @PostMapping("/find-correo")
     public ResponseEntity<Usuario> getUsuarioByCorreo(@RequestBody Map<String, String> request) {
@@ -155,6 +152,8 @@ public class UserController {
                     .body(Collections.emptyList());
         }
     }
+
+
 
     @PutMapping("/update-prop-medidor")
     public ResponseEntity<String> updatePropMedidor(@RequestBody Map<String, Object> request) {
@@ -253,6 +252,35 @@ public class UserController {
     public ResponseEntity<List<Usuario>> getUsuariosPropietariosPorZona(@PathVariable String zona_id) {
         try {
             List<Usuario> usuarios = usuarioService.findOwnersByZona(zona_id);
+            if (usuarios.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+            }
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
+    }
+
+
+    @GetMapping("/clientes")
+    public ResponseEntity<List<Usuario>> getUsuariosWithUserRole() {
+        try {
+            List<Usuario> usuarios = usuarioService.getUsuariosWithUserRoleAndOwnerMedidor();
+            if (usuarios.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+            }
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
+    }
+
+
+
+    @GetMapping("/monitores")
+    public ResponseEntity<List<Usuario>> getUsuariosWithMonitorRole() {
+        try {
+            List<Usuario> usuarios = usuarioService.findUsuariosWithMonitorRole();
             if (usuarios.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
             }
