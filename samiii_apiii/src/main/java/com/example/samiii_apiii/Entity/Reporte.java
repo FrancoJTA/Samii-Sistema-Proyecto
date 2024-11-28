@@ -22,8 +22,8 @@ public class Reporte {
     private LocalDateTime fechaCompletado;
     private String respuesta_id;
 
-    private String estado;
 
+    private String estado;
     //dato del monitor que hizo e reporte
     private String zonaid;
     private String Monitor_id;

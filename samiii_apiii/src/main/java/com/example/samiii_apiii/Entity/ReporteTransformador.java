@@ -13,6 +13,6 @@ public class ReporteTransformador {
     private String reportetransformador_id;
     private String zonaId;
     private LocalDateTime horaPico;
-    private float incrementoPotencia;  // Potencia adicional requerida
+        private float incrementoPotencia;  // Potencia adicional requerida
     private String estado;  // "alto rendimiento", "bajo rendimiento", "estable"
 }

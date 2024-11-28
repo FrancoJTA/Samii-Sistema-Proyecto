@@ -43,17 +43,48 @@ public class UserController {
             if (existingUserOpt.isPresent()) {
                 // Si el usuario ya existe, actualizar la información
                 Usuario existingUser = existingUserOpt.get();
-                // Extender la lista de prop_medidor
+
+                // Asegurarse de que la lista existingMedidores no sea null
                 List<prop_medidor> existingMedidores = existingUser.getPropietario_medidor();
+                if (existingMedidores == null) {
+                    existingMedidores = new ArrayList<>();
+                }
+
+                // Obtener la nueva lista de medidores
                 List<prop_medidor> newMedidores = usuario.getPropietario_medidor();
-                newMedidores.forEach(newMedidor -> {
-                    boolean exists = existingMedidores.stream()
-                            .anyMatch(existingMedidor -> existingMedidor.getMedidor_id().equals(newMedidor.getMedidor_id()));
-                    if (!exists) {
-                        existingMedidores.add(newMedidor);
+
+                // Verificar que newMedidores no sea null antes de usar forEach
+                if (newMedidores != null) {
+                    for (prop_medidor newMedidor : newMedidores) {
+                        if (newMedidor != null && newMedidor.getMedidor_id() != null) { // Verifica que el objeto y el ID no sean null
+                            boolean exists = existingMedidores.stream()
+                                    .anyMatch(existingMedidor ->
+                                            existingMedidor != null &&
+                                                    existingMedidor.getMedidor_id() != null &&
+                                                    existingMedidor.getMedidor_id().equals(newMedidor.getMedidor_id()));
+                            if (!exists) {
+                                existingMedidores.add(newMedidor); // Agrega solo si no existe
+                            }
+                        }
                     }
-                });
+                }
                 existingUser.setPropietario_medidor(existingMedidores);
+
+                // Manejar los roles del usuario
+                List<String> existingRoles = existingUser.getRoles();
+                if (existingRoles == null) {
+                    existingRoles = new ArrayList<>();
+                }
+
+                // Verificar que usuario.getRoles() no sea null
+                if (usuario.getRoles() != null) {
+                    for (String newRole : usuario.getRoles()) {
+                        if (!existingRoles.contains(newRole)) {
+                            existingRoles.add(newRole); // Agrega el rol solo si no existe
+                        }
+                    }
+                }
+                existingUser.setRoles(existingRoles);
 
                 // Actualizar otros datos (excepto el correo)
                 if (usuario.getNombre() != null) {
@@ -65,18 +96,15 @@ public class UserController {
                 if (usuario.getTelefono() != null) {
                     existingUser.setTelefono(usuario.getTelefono());
                 }
-                if (usuario.getRoles() != null) {
-                    existingUser.setRoles(usuario.getRoles());
-                }
 
                 // Guardar el usuario actualizado en la base de datos
                 Usuario updatedUser = usuarioService.save(existingUser);
 
-                // Enviar correo avisando sobre la adición del medidor
+                // Enviar correo avisando sobre la adición del medidor o roles
                 emailService.sendMedidorAddedEmail(
                         existingUser.getCorreo(),
-                        "Se agregó un nuevo medidor",
-                        "Se ha añadido un nuevo medidor a tu cuenta."
+                        "Se actualizó tu cuenta",
+                        "Se han actualizado los datos de tu cuenta."
                 );
 
                 return ResponseEntity.status(HttpStatus.OK).body(updatedUser);

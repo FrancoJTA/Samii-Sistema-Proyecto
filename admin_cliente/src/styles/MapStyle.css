@@ -1,0 +1,20 @@
+/* Asegúrate de que el contenedor ocupe toda la pantalla */
+html, body {
+    height: 100%; /* Altura completa del documento */
+    margin: 0; /* Elimina márgenes */
+    padding: 0; /* Elimina padding */
+    overflow: hidden; /* Evita barras de desplazamiento */
+}
+
+.map-container {
+    position: relative;
+    width: 100%; /* Ancho completo */
+    height: 100vh; /* Altura completa de la ventana */
+    margin: 0;
+    padding: 0;
+}
+
+.map {
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Altura completa */
+}

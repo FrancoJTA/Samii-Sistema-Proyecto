@@ -60,10 +60,7 @@ public class AuthController {
     }
     @PostMapping("/login/admin")
     public ResponseEntity<String> loginadmimn(@RequestBody LoginRequest loginRequest) {
-
-
         boolean exist = usuarioService.verificarRolPorCorreo(loginRequest.getCorreo(),"ADMIN");
-
         if (!exist) {
             return ResponseEntity.status(404).body("El usuario no existe.");
         }
@@ -71,7 +68,6 @@ public class AuthController {
         Optional<Usuario> usuarioOpt = usuarioService.findByCorreo(loginRequest.getCorreo());
 
         Usuario usuario = usuarioOpt.get();
-
         if (!passwordEncoder.matches(loginRequest.getPassword(), usuario.getPassword())) {
             return ResponseEntity.status(401).body("Contraseña incorrecta.");
         }

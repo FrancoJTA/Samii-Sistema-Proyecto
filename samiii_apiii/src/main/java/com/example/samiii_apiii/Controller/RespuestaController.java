@@ -85,7 +85,7 @@ public class RespuestaController {
             usuarioService.update(respuestaReporte.getMonitor_id(),usuario);
 
             // Verificar si es un reporte de instalación de medidor y respuesta es "Completado Óptimo"
-            if ("Instalar Medidor".equalsIgnoreCase(reporte.getTipo())
+            if ("Instalacion".equalsIgnoreCase(reporte.getTipo())
                     && "Completado Óptimo".equalsIgnoreCase(respuestaReporte.getRespuesta())) {
                 // Buscar el medidor y actualizar su estado a activo=true
                 boolean medidorActualizado = medidorService.updateMedidorEstado(reporte.getMedidor_id(), true);

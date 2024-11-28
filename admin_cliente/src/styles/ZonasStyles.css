@@ -5,104 +5,121 @@
 }
 
 .zonas-list {
-    flex: 1;
+    flex: 0.3; /* Ancho fijo para la lista de zonas */
     border-right: 1px solid #ddd;
     padding: 20px;
     overflow-y: auto;
-    transition: flex 0.3s ease;
+    background-color: #f9f9f9;
 }
 
-.zonas-list.collapsed {
-    flex: 0.3;
+.zonas-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .zona-item {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .zona-item:hover {
-    background-color: #f9f9f9;
-}
-
-.delete-button {
-    background: none;
-    border: none;
-    color: red;
-    cursor: pointer;
-    font-size: 16px;
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .zona-detail {
-    flex: 2;
+    flex: 0.7; /* Ocupa el espacio restante a la derecha */
     padding: 20px;
     overflow-y: auto;
+    background-color: #fff;
 }
 
-.map-container {
-    margin-top: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    overflow: hidden;
+.zona-detail h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
 }
 
-.create-zona {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.zona-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 16px;
 }
 
-.create-zona input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.create-zona button {
-    padding: 10px;
-    background-color: #007bff;
+.edit-zona-button {
+    background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
+    padding: 5px 10px;
     cursor: pointer;
 }
 
-.create-zona button:hover {
+.edit-zona-button:hover {
+    background-color: #218838;
+}
+
+.create-zona-button {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.create-zona-button:hover {
     background-color: #0056b3;
 }
 
-.modal {
-    background: white;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 400px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-}
-
 .map-container {
-    height: 300px;
-    width: 100%;
-    margin: 10px 0;
+    margin-top: 20px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 300px;
+}
+
+.reporte-transformadores {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.reporte-transformadores h3 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.reporte-transformadores ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.reporte-transformadores li {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.reporte-transformadores li:last-child {
+    border-bottom: none;
 }

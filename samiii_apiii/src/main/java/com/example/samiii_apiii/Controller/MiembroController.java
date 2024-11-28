@@ -55,6 +55,7 @@ public class MiembroController {
 
     @PostMapping("/registrar")
     public Usuario registrarUsuario(@RequestBody Map<String, Object> requestData) {
+        System.out.println(requestData);
         String correo = (String) requestData.get("correo");
         String otp = (String) requestData.get("otp");
         String nombre = (String) requestData.get("nombre");

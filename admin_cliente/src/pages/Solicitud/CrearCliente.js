@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../styles/FormularioStyles.css";
-import { fetchData, postData, putData } from "../utils/api";
+import "../../styles/FormularioStyles.css";
+import { fetchData, postData, putData } from "../../utils/api";
 import { useParams } from "react-router-dom";
 
 const CrearCliente = () => {
@@ -13,14 +13,14 @@ const CrearCliente = () => {
         apellido: "",
         ci: "",
         telefono: "",
-        roles: ["USER"], // Valor predeterminado
+        roles: ["USER"],
         propietario_medidor: [
             {
                 rol: "OWNER",
                 corte_luz: true,
                 ver_lectura: true,
                 pagar_facturas: true,
-                medidor_id: "", // Se completará después de crear el medidor
+                medidor_id: "",
             },
         ],
     });
@@ -28,19 +28,24 @@ const CrearCliente = () => {
         numero_serie: "",
         modelo: "",
         tipo: "",
+        name: generateMedidorName(), // Generar automáticamente
         latitud: "",
         longitud: "",
     });
+
+    // Función para generar el nombre del medidor
+    function generateMedidorName() {
+        const randomString = Math.random().toString(36).substring(2, 6).toUpperCase(); // Genera 4 caracteres aleatorios
+        return `Medidor-${randomString}`;
+    }
 
     // Cargar datos de la solicitud y la respuesta del reporte
     useEffect(() => {
         const loadData = async () => {
             try {
-                // Obtener datos de la solicitud
                 const solicitudResponse = await fetchData(`/solicitud/${solicitudId}`);
                 setSolicitudData(solicitudResponse);
 
-                // Rellenar campos comunes en el formulario del usuario
                 setFormData((prev) => ({
                     ...prev,
                     nombre: solicitudResponse.nombre || "",
@@ -50,11 +55,9 @@ const CrearCliente = () => {
                     telefono: solicitudResponse.telefono || "",
                 }));
 
-                // Obtener datos de la respuesta del reporte
                 const respuestaReporteResponse = await fetchData(`/respuesta/${respuestaId}`);
                 setRespuestaReporteData(respuestaReporteResponse);
 
-                // Rellenar latitud y longitud en el formulario del medidor
                 setMedidorFormData((prev) => ({
                     ...prev,
                     latitud: solicitudResponse.latitud || "",
@@ -68,7 +71,6 @@ const CrearCliente = () => {
         loadData();
     }, [solicitudId, respuestaId]);
 
-    // Manejar cambios en los formularios
     const handleFormChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -81,16 +83,13 @@ const CrearCliente = () => {
 
     const handleCreate = async () => {
         try {
-            // Crear el medidor primero
             const medidorResponse = await postData("/medidores", medidorFormData);
             console.log("Medidor creado:", medidorResponse);
 
-            // Verifica si `medidor_id` está presente en la respuesta
             if (!medidorResponse.medidor_id) {
                 throw new Error("El medidor no devolvió un ID válido");
             }
 
-            // Utilizar el medidor_id en propietario_medidor
             const updatedFormData = {
                 ...formData,
                 propietario_medidor: [
@@ -103,11 +102,9 @@ const CrearCliente = () => {
 
             console.log("Usuario a enviar:", JSON.stringify(updatedFormData));
 
-            // Crear el usuario
             const usuarioResponse = await postData("/usuarios", updatedFormData);
             console.log("Usuario creado:", usuarioResponse);
 
-            // Actualizar la solicitud asociada
             const updatedSolicitud = {
                 solicitud_id: solicitudId,
                 estado: "Completado",
@@ -118,14 +115,15 @@ const CrearCliente = () => {
 
             alert("Medidor, Usuario creados y Solicitud actualizada exitosamente");
 
-            // Reiniciar formularios
             setMedidorFormData({
                 numero_serie: "",
                 modelo: "",
                 tipo: "",
+                name: generateMedidorName(),
                 latitud: "",
                 longitud: "",
             });
+
             setFormData({
                 nombre: "",
                 correo: "",
@@ -154,7 +152,6 @@ const CrearCliente = () => {
             <h1>Crear Cliente</h1>
 
             <div className="data-section">
-                {/* Mostrar datos de la solicitud */}
                 {solicitudData && (
                     <div className="data-card">
                         <h2>Datos de la Solicitud</h2>
@@ -167,8 +164,6 @@ const CrearCliente = () => {
                         <p><strong>Longitud:</strong> {solicitudData.longitud}</p>
                     </div>
                 )}
-
-                {/* Mostrar datos de la respuesta del reporte */}
                 {respuestaReporteData && (
                     <div className="data-card">
                         <h2>Datos de la Respuesta del Reporte</h2>
@@ -179,7 +174,6 @@ const CrearCliente = () => {
             </div>
 
             <div className="form-section">
-                {/* Formulario para datos del usuario y medidor */}
                 <div className="form-card">
                     <h2>Datos del Usuario</h2>
                     <label>
@@ -237,6 +231,12 @@ const CrearCliente = () => {
                 <div className="form-card">
                     <h2>Datos del Medidor</h2>
                     <label>
+                        Nombre del Medidor:
+                        <label style={{ display: "block", fontWeight: "bold", padding: "5px" }}>
+                            {medidorFormData.name}
+                        </label>
+                    </label>
+                    <label>
                         Número de Serie:
                         <input
                             type="text"
@@ -258,33 +258,18 @@ const CrearCliente = () => {
                     </label>
                     <label>
                         Tipo:
-                        <input
-                            type="text"
+                        <select
                             name="tipo"
                             value={medidorFormData.tipo}
                             onChange={handleMedidorFormChange}
                             required
-                        />
-                    </label>
-                    <label>
-                        Latitud:
-                        <input
-                            type="text"
-                            name="Latitud"
-                            value={medidorFormData.latitud}
-                            onChange={handleMedidorFormChange}
-                            required
-                        />
-                    </label>
-                    <label>
-                        Longitud:
-                        <input
-                            type="text"
-                            name="Longitud"
-                            value={medidorFormData.longitud}
-                            onChange={handleMedidorFormChange}
-                            required
-                        />
+                        >
+                            <option value="" disabled>
+                                Seleccionar tipo
+                            </option>
+                            <option value="bidireccional">Bidireccional</option>
+                            <option value="unidireccional">Unidireccional</option>
+                        </select>
                     </label>
                 </div>
 

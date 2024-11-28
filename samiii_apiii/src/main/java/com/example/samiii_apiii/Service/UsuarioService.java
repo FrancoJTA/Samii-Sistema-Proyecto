@@ -3,7 +3,6 @@ package com.example.samiii_apiii.Service;
 import com.example.samiii_apiii.Entity.Medidor;
 import com.example.samiii_apiii.Entity.Usuario;
 import com.example.samiii_apiii.Entity.prop_medidor;
-import com.example.samiii_apiii.Repository.MedidorRepository;
 import com.example.samiii_apiii.Repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

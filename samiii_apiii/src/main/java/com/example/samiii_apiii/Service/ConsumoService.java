@@ -27,11 +27,13 @@ public class ConsumoService {
     @Autowired
     private ReporteTransformadorRepository reporteTransformadorRepository;
 
-
+    public List<ReporteTransformador> obtenerReportesPorZona(String zonaId) {
+        return reporteTransformadorRepository.findByZonaId(zonaId);
+    }
 
     // Método que se ejecuta cada hora para generar el reporte
-    @Scheduled(cron = "0 0 * * * ?") // Ejecuta cada hora
-    //@Scheduled(cron = "0 0/3 * * * ?") // Ejecuta cada 3 minutos
+    //@Scheduled(cron = "0 0 * * * ?") // Ejecuta cada hora
+    @Scheduled(cron = "0 0/1 * * * ?") // Ejecuta cada 3 minutos
     public void generarReporteHora() {
         List<Zona> zonas = zonaRepository.findAll();
 
@@ -65,6 +67,8 @@ public class ConsumoService {
             reporte.setZonaId(zona.getZona_id());
             reporte.setHoraPico(LocalDateTime.now()); // Hora actual cuando se detecta el pico
             reporte.setEstado(calcularEstado(zona, consumoPromedio)); // Estado basado en el consumo
+            zona.setEstado(calcularEstado(zona, consumoPromedio));
+            zonaRepository.save(zona);
 
             // Si el estado es "alto rendimiento", calcular el incremento de potencia
             if ("alto rendimiento".equals(reporte.getEstado())) {

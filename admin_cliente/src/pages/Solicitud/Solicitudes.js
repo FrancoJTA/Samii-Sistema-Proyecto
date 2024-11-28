@@ -1,11 +1,10 @@
 // Solicitudes.js
 import React, { useState, useEffect } from "react";
-import { fetchData, postData } from "../utils/api";
+import { fetchData, postData } from "../../utils/api";
 import SolicitudesList from "./SolicitudesList";
 import SolicitudDetail from "./SolicitudDetail";
-import ReportForm from "./ReportForm";
 import { useNavigate } from "react-router-dom";
-import "../styles/SolicitudesStyles.css";
+import "../../styles/SolicitudesStyles.css";
 
 const Solicitudes = () => {
     const [solicitudes, setSolicitudes] = useState([]);
@@ -34,17 +33,18 @@ const Solicitudes = () => {
         loadSolicitudes();
     }, []);
 
-    // Manejar la selección de una solicitud
     const handleSelectSolicitud = async (id) => {
         const solicitud = solicitudes.find((s) => s.solicitud_id === id);
         setSelectedSolicitud(solicitud);
         setShowReportForm(false);
 
+        // Si la solicitud tiene un reporte asociado, cargar su detalle
         if (solicitud.reporte_id) {
             try {
                 const reportDetail = await fetchData(`/reporte/${solicitud.reporte_id}`);
                 setReportData(reportDetail);
 
+                // Si el reporte tiene una respuesta asociada, cargar los detalles de la respuesta
                 if (reportDetail.respuesta_id) {
                     try {
                         const responseDetail = await fetchData(`/respuesta/${reportDetail.respuesta_id}`);
@@ -119,15 +119,15 @@ const Solicitudes = () => {
                     reportData={reportData}
                     responseReportData={responseReportData}
                     onCloseDetail={handleCloseDetail}
-                />
-            )}
-            {showReportForm && (
-                <ReportForm
-                    formData={reportFormData}
-                    onFormChange={handleReportChange}
-                    onFormSubmit={handleReportSubmit}
+                    onShowReportForm={handleShowReportForm}
+                    showReportForm={showReportForm}
+                    reportFormData={reportFormData}
+                    handleReportChange={handleReportChange}
+                    handleReportSubmit={handleReportSubmit}
                     reportTypes={reportTypes}
+                    setReportFormData={setReportFormData} // Pasamos esta función
                 />
+
             )}
         </div>
     );

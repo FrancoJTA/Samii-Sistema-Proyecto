@@ -2,17 +2,16 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Panel from "./pages/Panel";
-import Zonas from "./pages/Zonas";
-import Solicitudes from "./pages/Solicitudes";
-import CrearCliente from "./pages/CrearCliente";
+import Zonas from "./pages/Zonas/Zonas";
+import Solicitudes from "./pages/Solicitud/Solicitudes";
+import CrearCliente from "./pages/Solicitud/CrearCliente";
 import Reportes from "./pages/Reporte";
+import Mapa from "./pages/Mapa";
 import Monitor from "./pages/Monitores";
 import Navbar from "./components/Navbar";
 import PrivateRoute from "./components/PrivateRoute"; // Importa el componente
-
 import "./App.css";
-import Clientes from "./pages/Clientes";
-import Facturas from "./pages/Facturas";
+import Clientes from "./pages/Cliente/Clientes";
 
 function App() {
     return (
@@ -45,14 +44,6 @@ function App() {
                     }
                 />
                 <Route
-                    path="/facturas"
-                    element={
-                        <PrivateRoute>
-                            <Facturas />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
                     path="/solicitudes"
                     element={
                         <PrivateRoute>
@@ -69,10 +60,18 @@ function App() {
                     }
                 />
                 <Route
-                    path="/zona"
+                    path="/nucleos"
                     element={
                         <PrivateRoute>
                             <Zonas />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/mapa"
+                    element={
+                        <PrivateRoute>
+                            <Mapa />
                         </PrivateRoute>
                     }
                 />

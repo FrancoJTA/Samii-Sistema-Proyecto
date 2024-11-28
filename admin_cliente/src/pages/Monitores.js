@@ -7,6 +7,7 @@ Modal.setAppElement("#root");
 
 const Monitores = () => {
     const [monitores, setMonitores] = useState([]);
+    const [zonas, setZonas] = useState([]); // Nuevo estado para las zonas
     const [selectedMonitor, setSelectedMonitor] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -38,6 +39,30 @@ const Monitores = () => {
         loadMonitores();
     }, []);
 
+    useEffect(() => {
+        const loadMonitores = async () => {
+            try {
+                const data = await fetchData("/usuarios/monitores");
+                console.log(data);
+                setMonitores(data);
+            } catch (error) {
+                console.error("Error fetching monitores:", error);
+            }
+        };
+
+        const loadZonas = async () => {
+            try {
+                const zonasData = await fetchData("/zona");
+                setZonas(zonasData);
+            } catch (error) {
+                console.error("Error fetching zonas:", error);
+            }
+        };
+
+        loadMonitores();
+        loadZonas();
+    }, []);
+
     // Open Create Modal
     const handleOpenCreateModal = () => {
         setIsCreateModalOpen(true);
@@ -52,7 +77,7 @@ const Monitores = () => {
             ci: "",
             telefono: "",
             zonaid: "",
-            estado: "Activo",
+            estado: "Libre",
             roles: ["Monitor"],
         });
     };
@@ -134,18 +159,23 @@ const Monitores = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {monitores.map((monitor) => (
-                    <tr key={monitor.usuario_id}>
-                        <td>{`${monitor.nombre} ${monitor.apellido}`}</td>
-                        <td>{monitor.correo}</td>
-                        <td>{monitor.zonaid || "Sin Asignar"}</td>
-                        <td>{monitor.estado}</td>
-                        <td>
-                            <button onClick={() => handleOpenEditModal(monitor)}>Editar</button>
-                            <button onClick={() => handleDeleteMonitor(monitor.usuario_id)}>Eliminar</button>
-                        </td>
-                    </tr>
-                ))}
+                {monitores.map((monitor) => {
+                    // Encontrar la zona correspondiente al monitor
+                    const zona = zonas.find((z) => z.zona_id === monitor.zonaid);
+
+                    return (
+                        <tr key={monitor.usuario_id}>
+                            <td>{`${monitor.nombre} ${monitor.apellido}`}</td>
+                            <td>{monitor.correo}</td>
+                            <td>{zona ? zona.name : "Sin Asignar"}</td>
+                            <td>{monitor.estado}</td>
+                            <td>
+                                <button onClick={() => handleOpenEditModal(monitor)}>Editar</button>
+                                <button onClick={() => handleDeleteMonitor(monitor.usuario_id)}>Eliminar</button>
+                            </td>
+                        </tr>
+                    );
+                })}
                 </tbody>
             </table>
 
@@ -205,12 +235,18 @@ const Monitores = () => {
                     </label>
                     <label>
                         Zona:
-                        <input
-                            type="text"
+                        <select
                             name="zonaid"
-                            value={newMonitor.zonaid}
+                            value={newMonitor.zonaid || ""}
                             onChange={handleNewMonitorChange}
-                        />
+                        >
+                            <option value="">Seleccione una zona</option>
+                            {zonas.map((zona) => (
+                                <option key={zona.zona_id} value={zona.zona_id}>
+                                    {zona.name}
+                                </option>
+                            ))}
+                        </select>
                     </label>
                     <button onClick={handleCreateMonitor}>Crear</button>
                     <button onClick={handleCloseCreateModal}>Cancelar</button>
@@ -272,13 +308,21 @@ const Monitores = () => {
                         />
                     </label>
                     <label>
-                        Zona:
-                        <input
-                            type="text"
-                            name="zonaid"
-                            value={editMonitor?.zonaid || ""}
-                            onChange={handleEditMonitorChange}
-                        />
+                        <label>
+                            Zona:
+                            <select
+                                name="zonaid"
+                                value={editMonitor?.zonaid || ""}
+                                onChange={handleEditMonitorChange}
+                            >
+                                <option value="">Seleccione una zona</option>
+                                {zonas.map((zona) => (
+                                    <option key={zona.zona_id} value={zona.zona_id}>
+                                        {zona.Name}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
                     </label>
                     <button onClick={handleUpdateMonitor}>Guardar</button>
                     <button onClick={handleCloseEditModal}>Cancelar</button>

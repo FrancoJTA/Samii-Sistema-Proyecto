@@ -5,6 +5,7 @@ import com.example.samiii_apiii.Entity.Medidor;
 import com.example.samiii_apiii.Entity.Usuario;
 import com.example.samiii_apiii.Repository.FacturaRepository;
 import com.example.samiii_apiii.Repository.MedidorRepository;
+import com.example.samiii_apiii.Repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,12 @@ public class FacturaService {
     private MedidorRepository medidorRepository;
 
     @Autowired
-    private FacturaRepository facturaRepository;
+    private UsuarioService usuarioService;
 
-    @Scheduled(cron = "0 0 0 1 * ?") // Ejecuta el primer día de cada mes a medianoche
+    @Autowired
+    private FacturaRepository facturaRepository;
+    @Scheduled(cron = "0 * * * * ?") // Ejecuta cada minuto
+    //@Scheduled(cron = "0 0 0 1 * ?") // Ejecuta el primer día de cada mes a medianoche
     public void generarFacturasMensuales() {
         List<Medidor> medidores = medidorRepository.findAll(); // Consulta todos los medidores
         LocalDateTime fechaActual = LocalDateTime.now();
@@ -52,7 +56,13 @@ public class FacturaService {
                     factura.setConsumo(0);
                     factura.setGenerado(Math.abs(consumo));
 
-                    factura.setGen_samii_coin(0); // esto es en base a la diferencia
+                    factura.setGen_samii_coin(Math.abs(consumo)); // esto es en base a la diferencia la tasa de cambio carajo
+
+                    Optional<Usuario> user=usuarioService.findOwnerByMedidorId(medidor.getMedidor_id());
+                    if(user.isPresent()){
+                        Usuario usuario = user.get();
+                        usuario.setSamii_coin(usuario.getSamii_coin() + factura.getGen_samii_coin());
+                    }
                 }
 
                 // Configura otras propiedades

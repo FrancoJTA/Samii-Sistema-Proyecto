@@ -32,6 +32,7 @@ public class ZonaController {
     @PostMapping
     public ResponseEntity<Zona> createZona(@RequestBody Zona Zona) {
         try {
+            System.out.println(Zona);
             Zona nuevoZona = zonaService.save(Zona);
             return new ResponseEntity<>(nuevoZona, HttpStatus.CREATED);
         } catch (Exception e) {

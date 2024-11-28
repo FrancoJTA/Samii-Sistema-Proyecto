@@ -54,7 +54,7 @@ public class MedidorController {
         reporte.setFechareporte(LocalDateTime.now());
         reporte.setEstado("En Espera");
         reporte.setMedidor_id(medidorId);
-        reporte.setDescripcion("Instalar Medidor para uso de medidor inteligente    ");
+        reporte.setDescripcion("Instalar Medidor para uso de medidor inteligente");
         reporte.setTipo("Instalar Medidor");
         reporteService.save(reporte);
         Factura factura = new Factura();
@@ -63,7 +63,7 @@ public class MedidorController {
         factura.setFechaVencimiento(factura.getFechaEmision().plusDays(1));
         factura.setFechaPagado(LocalDateTime.now());
         factura.setPagada(true);
-
+        facturaService.guardarFactura(factura);
 
         return medidorService.save(medidor);
     }
